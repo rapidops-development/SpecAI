@@ -1,0 +1,28 @@
+specai: "0.1"
+id: UI-012
+title: Only the local browser can write
+status: proposed
+statement: >-
+  The server shall answer only requests addressed to localhost, and shall accept writes only when they carry the `X-SpecAI` header.
+rationale: |
+  A page on another site cannot send that header without a preflight the server never approves, and the host check defeats DNS rebinding, so no website can edit or read the spec files.
+components: [UI, CLI]
+tests:
+  - id: UI-012-T1
+    title: Write without the header is refused
+    status: proposed
+    level: unit
+    given:
+      - A running server
+    when: A request saves a requirement without the header
+    then:
+      - It is refused
+  - id: UI-012-T2
+    title: Other hosts are refused
+    status: proposed
+    level: unit
+    given:
+      - A running server
+    when: A request arrives addressed to another host name
+    then:
+      - It is refused

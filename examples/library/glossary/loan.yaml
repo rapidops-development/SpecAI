@@ -1,0 +1,6 @@
+specai: "0.1"
+term: Loan
+aliases: [loans]
+definition: |
+  A [[member]] having a [[copy]] out. A loan is **open** from borrowing until return, and
+  **overdue** once open past its due date.

@@ -1,0 +1,39 @@
+specai: "0.1"
+id: CLI-006
+title: Approval guard
+status: proposed
+statement: >-
+  When given a git range, `specai validate` shall fail if a commit carrying a
+  `Co-Authored-By: Claude` trailer changes any status to `approved`.
+components: [CLI]
+rationale: |
+  Only a human approves. The trailer check is a guardrail against mistakes, not security.
+tests:
+  - id: CLI-006-T1
+    title: Agent approval fails
+    status: proposed
+    level: integration
+    given:
+      - A commit carrying a Claude co-author trailer that sets a requirement to approved
+    when: The approval guard checks the range
+    then:
+      - An error names the commit and the requirement
+  - id: CLI-006-T2
+    title: Human approval passes
+    status: proposed
+    level: integration
+    given:
+      - A commit without the trailer that sets a requirement to approved
+    when: The approval guard checks the range
+    then:
+      - No error is reported
+  - id: CLI-006-T3
+    title: Agent edit of approved text fails
+    status: proposed
+    level: integration
+    given:
+      - An approved requirement
+      - A commit carrying the trailer that changes its statement and leaves it approved
+    when: The approval guard checks the range
+    then:
+      - An error says the requirement was not returned to proposed

@@ -1,0 +1,20 @@
+specai: "0.1"
+id: CAT-001
+title: Search the catalogue by title
+status: proposed
+statement: When a visitor searches the catalogue, the website shall list every [[title]] whose name contains the search text, with the number of [[copy|copies]] on the shelf.
+acceptance:
+  - Matching ignores letter case.
+  - A title with no copies on the shelf is still listed, showing 0.
+tags: [search]
+components: [Library.Web, Library.API]
+tests:
+  - id: CAT-001-T1
+    title: Case-insensitive match
+    status: proposed
+    level: integration
+    given:
+      - The catalogue holds "The Hobbit"
+    when: A visitor searches for "hobbit"
+    then:
+      - "\"The Hobbit\" is listed"

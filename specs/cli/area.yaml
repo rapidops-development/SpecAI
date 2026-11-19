@@ -1,0 +1,6 @@
+specai: "0.1"
+prefix: CLI
+name: Command-line tool
+description: specai validate, trace and serve.
+overview: |
+  The `specai` command checks a [[spec tree]], works out [[coverage]], and serves the UI.

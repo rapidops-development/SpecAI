@@ -1,0 +1,25 @@
+specai: "0.1"
+id: CLI-001
+title: Schema check
+status: proposed
+statement: When `specai validate` runs, the tool shall check every file in the [[spec tree]] against the schema for its kind and report each failure with its file, ID and field.
+components: [CLI]
+tests:
+  - id: CLI-001-T1
+    title: Failure names file, line, ID and field
+    status: proposed
+    level: unit
+    given:
+      - A requirement whose status is not a lifecycle status
+    when: The spec tree is validated
+    then:
+      - An error names the file, line, requirement ID and the /status field
+  - id: CLI-001-T2
+    title: Unknown field is named
+    status: proposed
+    level: unit
+    given:
+      - A requirement with a field the schema does not define
+    when: The spec tree is validated
+    then:
+      - An error names the unknown field

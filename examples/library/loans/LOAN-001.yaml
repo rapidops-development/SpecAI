@@ -1,0 +1,31 @@
+specai: "0.1"
+id: LOAN-001
+title: Loan limit
+status: proposed
+statement: While a [[member]] has five open [[loan|loans]], the lending service shall refuse a new loan.
+rationale: |
+  Keeps popular titles circulating. Five is the limit the library board set; it is a
+  configuration value, not a constant.
+components: [Library.API]
+related: [LOAN-002]
+tests:
+  - id: LOAN-001-T1
+    title: Sixth loan is refused
+    status: proposed
+    level: unit
+    given:
+      - A member with five open loans
+    when: The member borrows another copy
+    then:
+      - The loan is refused with reason "loan limit reached"
+      - The member still has five open loans
+  - id: LOAN-001-T2
+    title: Returning a copy frees a place
+    status: draft
+    level: unit
+    given:
+      - A member with five open loans
+      - The member returns one copy
+    when: The member borrows another copy
+    then:
+      - The loan is created

@@ -1,0 +1,16 @@
+specai: "0.1"
+id: UI-003
+title: Shareable filters
+status: proposed
+statement: When the user changes the search, filters or grouping, the UI shall store them in the page URL.
+components: [UI]
+tests:
+  - id: UI-003-T1
+    title: Filters survive the URL
+    status: proposed
+    level: unit
+    given:
+      - A search, two status filters and grouping by area
+    when: The page URL is read back
+    then:
+      - The same search, filters and grouping are restored

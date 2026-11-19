@@ -1,0 +1,5 @@
+specai: "0.1"
+term: Member
+aliases: [members]
+definition: A person registered with the library who may borrow [[copy|copies]].
+avoid: [customer, patron]

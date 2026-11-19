@@ -1,0 +1,4 @@
+specai: "0.1"
+term: Requirement
+aliases: [requirements]
+definition: One testable statement of what the software shall do, with a stable ID, in its own file.

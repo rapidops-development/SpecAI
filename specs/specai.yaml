@@ -1,0 +1,17 @@
+# SpecAI's own specs, written in the SpecAI format.
+specai: "0.1"
+name: SpecAI
+areas:
+  - standard
+  - cli
+  - ui
+components:
+  - name: Schema
+    path: SpecAI/schema
+    description: The JSON Schema rulebook.
+  - name: CLI
+    path: SpecAI/packages/cli
+    description: The specai command-line tool.
+  - name: UI
+    path: SpecAI/packages/ui
+    description: The web UI served by specai serve.

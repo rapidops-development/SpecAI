@@ -1,0 +1,11 @@
+# A small, made-up lending library, showing every SpecAI file kind.
+specai: "0.1"
+name: Lending library
+areas:
+  - catalogue
+  - loans
+components:
+  - name: Library.API
+    description: The lending service.
+  - name: Library.Web
+    description: The members' website.

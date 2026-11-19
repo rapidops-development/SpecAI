@@ -1,0 +1,6 @@
+specai: "0.1"
+id: UI-005
+title: Glossary pages
+status: proposed
+statement: The UI shall show each [[glossary term]] with its definition, aliases and the pages that link to it.
+components: [UI]

@@ -1,0 +1,26 @@
+specai: "0.1"
+id: CLI-007
+title: Trace links in test code
+status: proposed
+statement: When `specai trace` runs, the tool shall find [[test definition]] IDs in xUnit `Trait("SpecAI", ...)` attributes and in Vitest test names in each [[component]]'s code.
+components: [CLI]
+tests:
+  - id: CLI-007-T1
+    title: IDs found in both frameworks
+    status: proposed
+    level: unit
+    given:
+      - An xUnit test with a `Trait("SpecAI", ...)` attribute
+      - A Vitest test whose name starts with a test definition ID in brackets
+    when: The checkouts are traced
+    then:
+      - Both are linked to their test definitions, with file and line
+  - id: CLI-007-T2
+    title: Unknown IDs are reported
+    status: proposed
+    level: unit
+    given:
+      - Test code naming a test definition that no requirement has
+    when: The checkouts are traced
+    then:
+      - The file, line and ID are reported as an error

@@ -1,0 +1,8 @@
+specai: "0.1"
+id: STD-003
+title: One requirement per file, named by ID
+status: proposed
+statement: Each [[requirement]] shall live in its own file named `<ID>.yaml` inside its [[area]] folder.
+components: [Schema]
+rationale: |
+  Small files keep reviews and merges focused, and ID-only names never change when a title does.

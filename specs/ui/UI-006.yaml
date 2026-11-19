@@ -1,0 +1,27 @@
+specai: "0.1"
+id: UI-006
+title: Edits keep comments
+status: proposed
+statement: When the user saves an edit, the UI shall write the file back keeping its comments and key order.
+components: [UI, CLI]
+tests:
+  - id: UI-006-T1
+    title: Unchanged lines stay as they were
+    status: proposed
+    level: unit
+    given:
+      - A requirement file with comments, a block-style rationale and a flow-style component list
+    when: The user changes its title and adds a Then line
+    then:
+      - Only those two lines differ in the file
+  - id: UI-006-T2
+    title: New fields land in order
+    status: proposed
+    level: unit
+    given:
+      - A requirement with no tags or acceptance criteria
+    when: The user adds both and clears the rationale
+    then:
+      - The new fields sit in the standard field order
+      - The rationale is removed
+      - Comments are kept

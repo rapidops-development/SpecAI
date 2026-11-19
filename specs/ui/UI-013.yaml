@@ -1,0 +1,19 @@
+specai: "0.1"
+id: UI-013
+title: Forms follow the schema
+status: proposed
+statement: >-
+  The UI shall build its edit forms from the schema, choosing each field’s control from the schema definition it uses.
+rationale: |
+  A field added to the schema then appears in the forms without UI changes.
+components: [UI]
+tests:
+  - id: UI-013-T1
+    title: Fields come from the schema
+    status: proposed
+    level: unit
+    given:
+      - The v0.1 requirement schema
+    when: The requirement form is built
+    then:
+      - It has a field for every editable property, with a control for each kind of value

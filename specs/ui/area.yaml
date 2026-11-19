@@ -1,0 +1,7 @@
+specai: "0.1"
+prefix: UI
+name: Web UI
+description: Reading, searching and editing specs in the browser.
+overview: |
+  The UI runs locally through `specai serve`. It reads and writes the files of one [[spec tree]]
+  and never runs git.

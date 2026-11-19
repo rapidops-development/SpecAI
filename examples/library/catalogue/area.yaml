@@ -1,0 +1,7 @@
+specai: "0.1"
+prefix: CAT
+name: Catalogue
+description: What the library holds and how members find it.
+overview: |
+  The catalogue lists every [[title]] the library holds and how many [[copy|copies]] of each are
+  on the shelf.

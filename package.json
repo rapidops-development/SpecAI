@@ -1,0 +1,28 @@
+{
+  "name": "specai-workspace",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "validate": "node packages/cli/src/main.ts validate specs && node packages/cli/src/main.ts validate examples/library",
+    "build": "npm run build -w packages/ui",
+    "serve": "node packages/cli/src/main.ts serve"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.19.2",
+    "ajv": "^8.20.0",
+    "jsdom": "^31.0.1",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "vitest": "^5.1.0",
+    "yaml": "^2.9.1"
+  }
+}

@@ -1,0 +1,25 @@
+specai: "0.1"
+id: CLI-003
+title: Broken links
+status: proposed
+statement: When a link or a `parent` or `related` field names a term or requirement that does not exist, `specai validate` shall report an error.
+components: [CLI]
+tests:
+  - id: CLI-003-T1
+    title: Broken links in text
+    status: proposed
+    level: unit
+    given:
+      - A statement linking to a term and a requirement that do not exist
+    when: The spec tree is validated
+    then:
+      - An error is reported for each broken link
+  - id: CLI-003-T2
+    title: Missing parent and related
+    status: proposed
+    level: unit
+    given:
+      - A requirement whose parent and related requirements do not exist
+    when: The spec tree is validated
+    then:
+      - An error is reported for each

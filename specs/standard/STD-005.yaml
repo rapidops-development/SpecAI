@@ -1,0 +1,25 @@
+specai: "0.1"
+id: STD-005
+title: Test definitions belong to one requirement
+status: proposed
+statement: Each [[test definition]] shall sit inside the [[requirement]] it verifies, with the ID `<requirement ID>-Tn`, and shall verify no other requirement.
+components: [Schema]
+tests:
+  - id: STD-005-T1
+    title: Cross-requirement field is rejected
+    status: proposed
+    level: unit
+    given:
+      - A test definition with an `alsoVerifies` field
+    when: It is checked against the schema
+    then:
+      - It is rejected
+  - id: STD-005-T2
+    title: Malformed test ID is rejected
+    status: proposed
+    level: unit
+    given:
+      - A test definition with ID `LOAN-042-1`
+    when: It is checked against the schema
+    then:
+      - It is rejected

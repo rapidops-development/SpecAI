@@ -1,0 +1,28 @@
+specai: "0.1"
+id: STD-008
+title: No unknown fields
+status: proposed
+statement: The schema shall reject fields it does not define, except fields whose names start with `x-`.
+components: [Schema]
+rationale: |
+  Rejecting typos keeps files trustworthy; the `x-` namespace lets an organisation add its own
+  data without changing the standard.
+tests:
+  - id: STD-008-T1
+    title: Unknown field is rejected
+    status: proposed
+    level: unit
+    given:
+      - A requirement with a `priority` field
+    when: It is checked against the schema
+    then:
+      - It is rejected
+  - id: STD-008-T2
+    title: Extension field is accepted
+    status: proposed
+    level: unit
+    given:
+      - A requirement with an `x-acme` field
+    when: It is checked against the schema
+    then:
+      - It is accepted

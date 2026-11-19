@@ -1,0 +1,16 @@
+specai: "0.1"
+id: STD-004
+title: Requirement ID format
+status: proposed
+statement: A [[requirement]] ID shall be its [[area]] prefix, a hyphen and a number of at least three digits, such as `LOAN-042`.
+components: [Schema]
+tests:
+  - id: STD-004-T1
+    title: Malformed ID is rejected
+    status: proposed
+    level: unit
+    given:
+      - A requirement with ID `loan-42`
+    when: It is checked against the schema
+    then:
+      - It is rejected

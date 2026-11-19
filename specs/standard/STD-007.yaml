@@ -1,0 +1,16 @@
+specai: "0.1"
+id: STD-007
+title: Lifecycle statuses
+status: proposed
+statement: Every [[requirement]] and [[test definition]] shall have one of the statuses draft, proposed, approved, deprecated or removed.
+components: [Schema]
+tests:
+  - id: STD-007-T1
+    title: Unknown status is rejected
+    status: proposed
+    level: unit
+    given:
+      - A requirement with status `done`
+    when: It is checked against the schema
+    then:
+      - It is rejected

@@ -1,0 +1,5 @@
+specai: "0.1"
+term: Test definition
+aliases: [test definitions]
+definition: A description of what one test checks, in Given/When/Then form, inside the [[requirement]] it verifies.
+avoid: [test case]

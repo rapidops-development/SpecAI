@@ -1,0 +1,25 @@
+specai: "0.1"
+id: CLI-009
+title: Serve a spec tree
+status: proposed
+statement: When `specai serve` runs, the tool shall serve the UI and an API over one [[spec tree]], and push changes to open pages when files change on disk.
+components: [CLI]
+tests:
+  - id: CLI-009-T1
+    title: Serves the index
+    status: proposed
+    level: integration
+    given:
+      - A valid spec tree
+    when: The UI asks the server for the spec index
+    then:
+      - It receives every area, requirement and glossary term, with no problems
+  - id: CLI-009-T2
+    title: Pushes file changes
+    status: proposed
+    level: integration
+    given:
+      - A page listening for changes
+    when: A requirement file changes on disk
+    then:
+      - The page receives a change event

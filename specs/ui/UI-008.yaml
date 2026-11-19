@@ -1,0 +1,35 @@
+specai: "0.1"
+id: UI-008
+title: Status buttons
+status: proposed
+statement: The UI shall let the user change an item's status, and shall return an approved item to proposed when its text is edited.
+components: [UI, CLI]
+tests:
+  - id: UI-008-T1
+    title: Editing approved text reopens review
+    status: proposed
+    level: unit
+    given:
+      - An approved requirement
+    when: The user changes its statement without changing its status
+    then:
+      - It is saved as proposed
+      - The user is told why
+  - id: UI-008-T2
+    title: A status change alone keeps approval
+    status: proposed
+    level: unit
+    given:
+      - A proposed requirement
+    when: The user approves it
+    then:
+      - It is saved as approved with no other change
+  - id: UI-008-T3
+    title: Approval is offered only for proposed items
+    status: proposed
+    level: unit
+    given:
+      - Items in each status
+    when: Their status buttons are shown
+    then:
+      - Only proposed items offer Approve

@@ -1,0 +1,25 @@
+specai: "0.1"
+id: UI-007
+title: Assign IDs
+status: proposed
+statement: When the user creates a [[requirement]] or [[test definition]], the UI shall assign the next unused ID in its area or requirement.
+components: [UI, CLI]
+tests:
+  - id: UI-007-T1
+    title: Next requirement ID counts removed ones
+    status: proposed
+    level: unit
+    given:
+      - An area whose highest requirement, LOAN-007, is removed
+    when: The user creates a requirement there
+    then:
+      - It is saved as LOAN-008
+  - id: UI-007-T2
+    title: New tests take the next number
+    status: proposed
+    level: unit
+    given:
+      - Test definitions T1 and T3
+    when: The user adds two more and saves
+    then:
+      - They get T4 and T5

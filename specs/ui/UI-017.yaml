@@ -1,0 +1,16 @@
+specai: "0.1"
+id: UI-017
+title: Preview Markdown while editing
+status: proposed
+statement: >-
+  While the user edits a Markdown field, the UI shall let them switch between writing the text and a
+  preview of it rendered as the page will show it.
+rationale: |
+  Rationale, notes, definitions and overviews are Markdown with links; seeing them rendered catches
+  broken formatting before the save.
+acceptance:
+  - "The field has \"Write\" and \"Preview\" buttons; the pressed one is marked."
+  - An empty field previews as "Nothing to preview."
+components: [UI]
+tags: [editing]
+related: [UI-013]

@@ -1,0 +1,16 @@
+specai: "0.1"
+id: CLI-005
+title: Known components
+status: proposed
+statement: When a [[requirement]] names a [[component]] not listed in `specai.yaml`, `specai validate` shall report an error.
+components: [CLI]
+tests:
+  - id: CLI-005-T1
+    title: Unlisted component
+    status: proposed
+    level: unit
+    given:
+      - A requirement naming a component not in specai.yaml
+    when: The spec tree is validated
+    then:
+      - An error names the component

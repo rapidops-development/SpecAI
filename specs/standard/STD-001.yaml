@@ -1,0 +1,18 @@
+specai: "0.1"
+id: STD-001
+title: Restricted YAML
+status: proposed
+statement: The validator shall reject any spec file that uses YAML anchors, aliases or custom tags.
+components: [Schema]
+rationale: |
+  Plain data keeps files easy for agents to write and for the UI to rewrite without losing meaning.
+tests:
+  - id: STD-001-T1
+    title: Anchors, aliases and custom tags are rejected
+    status: proposed
+    level: unit
+    given:
+      - A spec file that uses an anchor and alias, or a custom tag
+    when: It is parsed
+    then:
+      - Parsing fails, naming the construct that is not allowed

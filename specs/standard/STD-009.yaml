@@ -1,0 +1,8 @@
+specai: "0.1"
+id: STD-009
+title: Wiki-style links
+status: proposed
+statement: Text fields shall link to a [[glossary term]] with `[[slug]]` or `[[slug|display text]]`, and to a [[requirement]] with `[[ID]]`.
+components: [Schema]
+notes: |
+  A link may also use any of a term's aliases.

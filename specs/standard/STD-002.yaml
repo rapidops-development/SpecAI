@@ -1,0 +1,18 @@
+specai: "0.1"
+id: STD-002
+title: Version on every file
+status: proposed
+statement: Every spec file shall declare the version of the standard it is written for in a quoted `specai` field.
+components: [Schema]
+rationale: |
+  Quoting stops YAML reading `0.1` as a number, which would turn `0.10` into `0.1`.
+tests:
+  - id: STD-002-T1
+    title: Unquoted version is rejected
+    status: proposed
+    level: unit
+    given:
+      - A [[requirement]] whose `specai` field is the number `0.1`
+    when: It is checked against the schema
+    then:
+      - It is rejected

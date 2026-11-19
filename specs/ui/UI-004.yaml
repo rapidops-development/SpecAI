@@ -1,0 +1,17 @@
+specai: "0.1"
+id: UI-004
+title: Requirement page
+status: proposed
+statement: The UI shall show each [[requirement]] with its links rendered as navigation, its test definitions as Given/When/Then cards, and the pages that link to it.
+components: [UI]
+tests:
+  - id: UI-004-T1
+    title: Links go to the right page
+    status: proposed
+    level: unit
+    given:
+      - A link to a term by an alias, and a link to a requirement that does not exist
+    when: The requirement page renders them
+    then:
+      - The alias link goes to the term
+      - The missing requirement is marked as a broken link

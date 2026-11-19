@@ -1,0 +1,5 @@
+specai: "0.1"
+term: Copy
+aliases: [copies]
+definition: One physical item of a [[title]]. Members borrow copies, not titles.
+avoid: [book]

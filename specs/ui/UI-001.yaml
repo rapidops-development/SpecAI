@@ -1,0 +1,25 @@
+specai: "0.1"
+id: UI-001
+title: Fuzzy search
+status: proposed
+statement: When the user types in the search box, the UI shall list matching requirements using fuzzy matching, ranking matches in IDs and titles above statements and test text, and those above rationale and notes.
+components: [UI]
+tests:
+  - id: UI-001-T1
+    title: Tolerates typos
+    status: proposed
+    level: unit
+    given:
+      - A requirement titled "Search the catalogue"
+    when: The user searches for "caatalog"
+    then:
+      - That requirement is listed
+  - id: UI-001-T2
+    title: IDs and titles rank first
+    status: proposed
+    level: unit
+    given:
+      - Requirements whose IDs and titles contain "loan", and one that mentions it only in its statement
+    when: The user searches for "loan"
+    then:
+      - The ID and title matches are listed first

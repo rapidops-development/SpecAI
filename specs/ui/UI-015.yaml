@@ -1,0 +1,80 @@
+specai: "0.1"
+id: UI-015
+title: Link previews
+status: proposed
+statement: When the pointer rests on a link to a [[requirement]] or [[glossary term]], the UI shall show a scrollable preview of the linked page next to the link.
+rationale: |
+  Specs link to each other a lot. A preview lets a reader check what a linked requirement or term
+  says without leaving the page they are reading, and the preview scrolls so long pages fit in a
+  small panel.
+acceptance:
+  - The preview appears after the pointer has rested on the link for a short delay, so moving the pointer across a page does not flash previews.
+  - A requirement's preview shows its ID, status, title, statement, acceptance criteria and test definition titles.
+  - A glossary term's preview shows the term, its aliases and its definition.
+  - The preview stays open while the pointer is on the link or on the preview, and closes shortly after it leaves both.
+  - Content taller than the preview scrolls inside the preview without scrolling the page.
+  - Keyboard focus on the link shows the preview too, and `Escape` closes it.
+  - Broken links, links to the page being viewed, the side navigation and rows in the requirement list show no preview.
+tags: [navigation]
+components: [UI]
+related: [UI-004, UI-005]
+tests:
+  - id: UI-015-T1
+    title: Requirement link shows its preview
+    status: proposed
+    level: unit
+    given:
+      - A requirement page whose statement links to another requirement with acceptance criteria and a test definition
+    when: The pointer rests on the link
+    then:
+      - A preview appears with the linked requirement's ID, status, title and statement
+      - The preview lists its acceptance criteria and test definition titles
+  - id: UI-015-T2
+    title: Glossary term link shows its preview
+    status: proposed
+    level: unit
+    given:
+      - A statement that links to a glossary term by an alias
+    when: The pointer rests on the link
+    then:
+      - A preview appears with the term, its aliases and its definition
+  - id: UI-015-T3
+    title: Preview waits, stays and closes
+    status: proposed
+    level: unit
+    given:
+      - A link to a requirement
+    when: The pointer enters the link, moves onto the preview, then leaves both
+    then:
+      - No preview shows before the delay ends
+      - The preview stays open while the pointer is on the preview
+      - The preview closes after the pointer leaves both
+  - id: UI-015-T4
+    title: Keyboard opens and Escape closes
+    status: proposed
+    level: unit
+    given:
+      - A link to a glossary term
+    when: The link receives keyboard focus, then `Escape` is pressed
+    then:
+      - The preview shows while the link has focus
+      - The preview closes on `Escape`
+  - id: UI-015-T5
+    title: No preview where it adds nothing
+    status: proposed
+    level: unit
+    given:
+      - A broken link, a link to the page being viewed, a side navigation link and a requirement list row
+    when: The pointer rests on each one
+    then:
+      - No preview appears
+  - id: UI-015-T6
+    title: Long previews scroll inside
+    status: proposed
+    level: manual
+    given:
+      - A requirement with enough acceptance criteria and tests to overflow the preview
+    when: The reader hovers a link to it and scrolls with the pointer over the preview
+    then:
+      - The preview content scrolls
+      - The page behind it does not scroll

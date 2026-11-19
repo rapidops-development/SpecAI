@@ -1,0 +1,20 @@
+specai: "0.1"
+id: UI-010
+title: Refuse invalid edits
+status: proposed
+statement: >-
+  If a save would make a spec file fail the schema, its layout, its IDs or its components, then the UI shall refuse the save, leave the file unchanged and show each problem.
+rationale: |
+  Broken links are allowed through, because a link is often written before the term or requirement it points to.
+components: [UI, CLI]
+tests:
+  - id: UI-010-T1
+    title: Invalid status is refused
+    status: proposed
+    level: unit
+    given:
+      - A requirement
+    when: The user saves it with the status `done`
+    then:
+      - The save is refused with the schema problem
+      - The file is unchanged

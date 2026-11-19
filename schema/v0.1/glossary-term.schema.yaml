@@ -1,0 +1,22 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: urn:specai:v0.1:glossary-term
+title: SpecAI glossary term (glossary/<slug>.yaml)
+type: object
+required: [specai, term, definition]
+properties:
+  specai: { $ref: "urn:specai:v0.1:common#/$defs/version" }
+  term: { $ref: "urn:specai:v0.1:common#/$defs/text" }
+  aliases:
+    description: Other names for the same term. Links may use them.
+    type: array
+    items: { $ref: "urn:specai:v0.1:common#/$defs/text" }
+    uniqueItems: true
+  definition: { $ref: "urn:specai:v0.1:common#/$defs/markdown" }
+  avoid:
+    description: Words that must not be used for this concept.
+    type: array
+    items: { $ref: "urn:specai:v0.1:common#/$defs/text" }
+    uniqueItems: true
+patternProperties:
+  "^x-": { $ref: "urn:specai:v0.1:common#/$defs/extension" }
+additionalProperties: false

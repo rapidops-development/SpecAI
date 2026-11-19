@@ -1,0 +1,23 @@
+specai: "0.1"
+id: UI-014
+title: Show coverage
+status: proposed
+statement: >-
+  Where the server knows the component checkouts, the UI shall show each [[requirement]]'s
+  [[coverage]], where test code names each [[test definition]], and let the user filter and group
+  by coverage.
+rationale: |
+  A reviewer approving a requirement wants to see whether its tests exist yet, without leaving the
+  page.
+components: [UI]
+tests:
+  - id: UI-014-T1
+    title: Filter and group by coverage
+    status: proposed
+    level: unit
+    given:
+      - Requirements that are covered, not covered and without test definitions
+    when: The user filters and groups by coverage
+    then:
+      - Only the chosen coverage levels are listed
+      - Groups follow the order covered, partly covered, not covered, no test definitions

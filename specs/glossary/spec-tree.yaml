@@ -1,0 +1,4 @@
+specai: "0.1"
+term: Spec tree
+aliases: [spec trees]
+definition: A folder holding a `specai.yaml` and the areas and glossary it lists.

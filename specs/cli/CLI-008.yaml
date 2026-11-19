@@ -1,0 +1,25 @@
+specai: "0.1"
+id: CLI-008
+title: Derived coverage
+status: proposed
+statement: The tool shall report a [[requirement]] as covered when every one of its test definitions has linked test code in one of its components, and shall never write [[coverage]] into spec files.
+components: [CLI]
+tests:
+  - id: CLI-008-T1
+    title: Coverage levels
+    status: proposed
+    level: unit
+    given:
+      - Requirements whose test definitions are all, some or none linked, and one with no test definitions
+    when: The checkouts are traced
+    then:
+      - They are covered, partly covered, not covered and without test definitions
+  - id: CLI-008-T2
+    title: Only the requirement’s components count
+    status: proposed
+    level: unit
+    given:
+      - Test code naming a test definition, in a component the requirement does not list
+    when: The checkouts are traced
+    then:
+      - The requirement is not covered

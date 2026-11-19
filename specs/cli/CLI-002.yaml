@@ -1,0 +1,16 @@
+specai: "0.1"
+id: CLI-002
+title: Duplicate IDs
+status: proposed
+statement: When two files in a [[spec tree]] declare the same [[requirement]] or [[test definition]] ID, `specai validate` shall report an error naming both files.
+components: [CLI]
+tests:
+  - id: CLI-002-T1
+    title: Duplicate test definition ID
+    status: proposed
+    level: unit
+    given:
+      - Two requirement files each with a test definition ID LOAN-001-T1
+    when: The spec tree is validated
+    then:
+      - An error names the file that already uses the ID

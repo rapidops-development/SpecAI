@@ -1,0 +1,26 @@
+specai: "0.1"
+id: UI-002
+title: Filter and group
+status: proposed
+statement: The UI shall filter and group requirements by [[area]], status, tag, [[component]], [[coverage]] and test level.
+components: [UI]
+tests:
+  - id: UI-002-T1
+    title: Combining filters
+    status: proposed
+    level: unit
+    given:
+      - Requirements with different statuses and components
+    when: The user picks two statuses and one component
+    then:
+      - Only requirements with one of the statuses and the component are listed
+  - id: UI-002-T2
+    title: Grouping by tag
+    status: proposed
+    level: unit
+    given:
+      - Some requirements with tags and some without
+    when: The user groups by tag
+    then:
+      - There is one group per tag
+      - Requirements without a tag are grouped last

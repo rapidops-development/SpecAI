@@ -1,0 +1,6 @@
+specai: "0.1"
+prefix: LOAN
+name: Loans
+description: Borrowing and returning copies.
+overview: |
+  A [[member]] borrows a [[copy]] as a [[loan]] and returns it by the due date.

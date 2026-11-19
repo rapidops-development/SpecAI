@@ -1,0 +1,14 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: urn:specai:v0.1:area
+title: SpecAI area (area.yaml)
+type: object
+required: [specai, prefix, name]
+properties:
+  specai: { $ref: "urn:specai:v0.1:common#/$defs/version" }
+  prefix: { $ref: "urn:specai:v0.1:common#/$defs/prefix" }
+  name: { $ref: "urn:specai:v0.1:common#/$defs/text" }
+  description: { $ref: "urn:specai:v0.1:common#/$defs/text" }
+  overview: { $ref: "urn:specai:v0.1:common#/$defs/markdown" }
+patternProperties:
+  "^x-": { $ref: "urn:specai:v0.1:common#/$defs/extension" }
+additionalProperties: false

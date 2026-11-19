@@ -1,0 +1,21 @@
+specai: "0.1"
+id: UI-011
+title: Notice edits made on disk
+status: proposed
+statement: >-
+  If a file changed on disk after the user opened it, then the UI shall refuse to save over it and offer to reload the file.
+rationale: |
+  Agents edit the same files while a person reviews them; silently overwriting their work would lose it.
+components: [UI, CLI]
+tests:
+  - id: UI-011-T1
+    title: Stale save is refused
+    status: proposed
+    level: unit
+    given:
+      - A requirement open in the UI
+      - An agent changes its title on disk
+    when: The user saves their own change
+    then:
+      - The save is refused
+      - The current text of the file is returned

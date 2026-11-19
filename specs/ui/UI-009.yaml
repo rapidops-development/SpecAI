@@ -1,0 +1,6 @@
+specai: "0.1"
+id: UI-009
+title: No git
+status: proposed
+statement: The UI shall not run git commands; the user reviews and commits changes in their own tools.
+components: [UI]

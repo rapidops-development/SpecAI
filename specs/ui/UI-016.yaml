@@ -1,0 +1,17 @@
+specai: "0.1"
+id: UI-016
+title: Edit a file as YAML
+status: proposed
+statement: >-
+  When the user chooses to edit a spec file's YAML, the UI shall show the file's text for editing and
+  save it under the same checks as a form edit.
+rationale: |
+  Some changes are quicker in the text than in a form, and a file that no longer parses cannot be
+  opened in a form at all.
+acceptance:
+  - An existing requirement's editor offers "Edit the YAML instead".
+  - A file listed on the problems page opens in the YAML editor.
+  - The save is refused as [[UI-010]] and [[UI-011]] describe, and the reason is shown.
+components: [UI]
+tags: [editing]
+related: [UI-010, UI-011]

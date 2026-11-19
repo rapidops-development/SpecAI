@@ -1,0 +1,6 @@
+specai: "0.1"
+id: STD-006
+title: IDs are never reused
+status: proposed
+statement: When a [[requirement]] is no longer wanted, its file shall stay in place with status `removed` or `deprecated`, so its ID is never reused.
+components: [Schema]

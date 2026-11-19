@@ -1,0 +1,27 @@
+specai: "0.1"
+id: CLI-004
+title: Avoided words
+status: proposed
+statement: When requirement or test text contains a word listed in a [[glossary term]]'s `avoid` field, `specai validate` shall report a warning naming the preferred term.
+components: [CLI]
+tests:
+  - id: CLI-004-T1
+    title: Warning names the preferred term
+    status: proposed
+    level: unit
+    given:
+      - A glossary term that avoids the word customer
+      - A test definition whose text says Customer
+    when: The spec tree is validated
+    then:
+      - A warning names the avoided word and links the preferred term
+  - id: CLI-004-T2
+    title: Warnings fail only with --strict
+    status: proposed
+    level: integration
+    given:
+      - A spec tree whose only problem is an avoided word
+    when: specai validate runs with and without --strict
+    then:
+      - It exits 0 without --strict
+      - It exits 1 with --strict

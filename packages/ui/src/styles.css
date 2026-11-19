@@ -1,0 +1,126 @@
+@import "tailwindcss";
+@import "@fontsource/lato/400.css";
+@import "@fontsource/lato/400-italic.css";
+@import "@fontsource/lato/700.css";
+
+:root {
+  /* Light palette #f5f5f5 #dff1f1 #bbd5da #ff0000; the red is deepened to #c40000 for 4.5:1 text. */
+  --paper: #f5f5f5;
+  --surface: #ffffff;
+  --ink: #1f2a2e;
+  --muted: #56676b;
+  --rule: #bbd5da;
+  --accent: #c40000;
+  --accent-soft: #dff1f1;
+  --focus: #3f7480;
+  --s-draft: #5b6370;
+  --s-proposed: #8a5300;
+  --s-approved: #27693f;
+  --s-deprecated: #56657a;
+  --s-removed: #9f3a2c;
+  --danger: #b42318;
+  --warn: #8a5300;
+  color-scheme: light;
+}
+
+/* Dark tokens (palette #181d31 #678983 #e6ddc4 #f0e9d2): follow the system unless the viewer picked light; or the viewer picked dark. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #181d31;
+    --surface: #20263d;
+    --ink: #f0e9d2;
+    --muted: #aaa694;
+    --rule: #2e3550;
+    --accent: #9dbcb5;
+    --accent-soft: #2c3d45;
+  --focus: #9dbcb5;
+    --s-draft: #9ca3af;
+    --s-proposed: #e3b341;
+    --s-approved: #6cc08b;
+    --s-deprecated: #94a3b8;
+    --s-removed: #f08a76;
+    --danger: #f38b7d;
+    --warn: #e3b341;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #181d31;
+  --surface: #20263d;
+  --ink: #f0e9d2;
+  --muted: #aaa694;
+  --rule: #2e3550;
+  --accent: #9dbcb5;
+  --accent-soft: #2c3d45;
+  --focus: #9dbcb5;
+  --s-draft: #9ca3af;
+  --s-proposed: #e3b341;
+  --s-approved: #6cc08b;
+  --s-deprecated: #94a3b8;
+  --s-removed: #f08a76;
+  --danger: #f38b7d;
+  --warn: #e3b341;
+  color-scheme: dark;
+  }
+
+@theme {
+  /* Lato throughout: prose uses it too. */
+  --font-sans: "Lato", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Lato", ui-sans-serif, system-ui, sans-serif;
+  /* Lato ships 400 and 700 only, so medium and semibold use Bold rather than falling back to Regular. */
+  --font-weight-medium: 700;
+  --font-weight-semibold: 700;
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-warn: var(--warn);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1;
+}
+
+/* An EARS keyword in a statement. */
+.ears {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.prose-spec {
+  font-family: var(--font-serif);
+  line-height: 1.6;
+}
+.prose-spec p + p,
+.prose-spec ul,
+.prose-spec ol { margin-top: 0.75em; }
+.prose-spec ul { list-style: disc; padding-left: 1.25em; }
+.prose-spec ol { list-style: decimal; padding-left: 1.25em; }
+.prose-spec code,
+code.inline,
+aside code {
+  font-family: var(--font-sans);
+  font-size: 0.875em;
+  background: var(--accent-soft);
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+}
+.prose-spec a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.prose-spec strong { font-weight: 600; }
+
+a.wikilink { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a.wikilink:hover { text-decoration-thickness: 2px; }
+.wikilink-broken { text-decoration: underline wavy var(--danger); text-underline-offset: 3px; }
+
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

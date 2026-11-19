@@ -1,0 +1,8 @@
+specai: "0.1"
+id: LOAN-003
+title: Loan period
+status: deprecated
+statement: The lending service shall set every [[loan]]'s due date to fourteen days after it is created.
+notes: |
+  Superseded by per-title loan periods, which are not yet specified. Kept so the ID is never reused.
+components: [Library.API]

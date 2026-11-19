@@ -1,0 +1,8 @@
+specai: "0.1"
+prefix: STD
+name: Standard
+description: The file format itself, as defined by the schema.
+overview: |
+  A [[spec tree]] holds a root `specai.yaml`, one folder per [[area]], one file per
+  [[requirement]] and one file per [[glossary term]]. The schema in `schema/` is the official
+  definition; `docs/standard.md` explains it.

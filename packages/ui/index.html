@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SpecAI</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none' stroke='%231f2a2e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cstyle%3E@media (prefers-color-scheme: dark){svg{stroke:%23f0e9d2}}%3C/style%3E%3Ccircle cx='8.5' cy='17' r='6'/%3E%3Ccircle cx='23.5' cy='17' r='6'/%3E%3Cpath d='M14.5 16.2Q16 14 17.5 16.2'/%3E%3Cpath d='M2.8 15H1M29.2 15H31'/%3E%3C/svg%3E" />
+    <script>
+      try {
+        const theme = localStorage.getItem('specai-theme')
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
