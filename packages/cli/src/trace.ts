@@ -117,7 +117,8 @@ const pytestFile = /(?:^|\/)(?:test_[^/]*|[^/]*_test)\.py$/
 const pytestPattern = new RegExp(`@(?:pytest\\s*\\.\\s*)?mark\\s*\\.\\s*specai\\s*\\(\\s*["'](${testId})["']\\s*\\)`, 'g')
 // A def or class statement, with its indentation.
 const pythonDefinition = /^([ \t]*)(?:async[ \t]+)?(def|class)[ \t]+(\w+)/gm
-const skipped = new Set(['node_modules', '.git', 'bin', 'obj', 'dist', 'build', 'coverage', '.next'])
+// Folders never scanned: dependencies, build output and Python virtual environments.
+const skipped = new Set(['node_modules', '.git', 'bin', 'obj', 'dist', 'build', 'coverage', '.next', '.venv', 'venv', '.tox'])
 // Files that can hold implementation annotations: not documentation, and not too large to be source.
 const documentation = /\.(md|mdx|markdown|txt)$/i
 const maxSourceBytes = 1_000_000

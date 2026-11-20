@@ -11,6 +11,7 @@ acceptance:
   - A `@pytest.mark.parametrize` test counts as one test.
   - pytest tests follow the same one-to-one, untagged-test and component rules as xUnit and Vitest tests.
   - Implementation annotations in pytest test files are ignored.
+  - Python virtual environments (`.venv`, `venv` and `.tox` folders) are not scanned, so tests in installed packages are neither linked nor listed as untagged.
 components: [CLI]
 related: [CLI-007, CLI-010, CLI-013, STD-010]
 rationale: |
@@ -45,3 +46,13 @@ tests:
     when: The checkouts are traced
     then:
       - It is reported as a test naming more than one test definition
+  - id: CLI-022-T4
+    title: Virtual environments are skipped
+    status: proposed
+    level: unit
+    given:
+      - A component with marked and unmarked pytest tests inside `.venv`, `venv` and `.tox` folders
+    when: The checkouts are traced
+    then:
+      - No test definition is linked from them
+      - None of their tests is listed as untagged
