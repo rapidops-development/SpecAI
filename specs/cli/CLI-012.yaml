@@ -1,0 +1,23 @@
+specai: "0.1"
+id: CLI-012
+title: Links outside the requirement's components
+status: proposed
+statement: If test code names a [[test definition]] ID in a [[component]] that its [[requirement]] does not list, then `specai trace` shall report a warning naming the place and the components the requirement lists.
+components: [CLI]
+related: [CLI-008]
+rationale: |
+  Such a link does not count towards [[coverage]], and it is not an unknown ID either, so without a
+  warning it silently vanishes. Usually the requirement's `components` are wrong, or the test is in
+  the wrong repo.
+tests:
+  - id: CLI-012-T1
+    title: Link in another component
+    status: proposed
+    level: unit
+    given:
+      - A requirement listing only Library.Web
+      - Test code in Library.API naming one of its test definitions
+    when: The checkouts are traced
+    then:
+      - A warning names the file, line, ID and Library.Web
+      - The test definition is not linked

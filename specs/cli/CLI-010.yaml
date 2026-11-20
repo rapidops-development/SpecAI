@@ -1,0 +1,27 @@
+specai: "0.1"
+id: CLI-010
+title: Test definition named by one test
+status: proposed
+statement: If more than one test names the same [[test definition]] ID, then `specai trace` shall report an error naming the ID and each place.
+components: [CLI]
+parent: STD-010
+tests:
+  - id: CLI-010-T1
+    title: Definition named by two tests
+    status: proposed
+    level: unit
+    given:
+      - Two tests in a [[component]]'s code that both name LOAN-001-T1
+    when: The checkouts are traced
+    then:
+      - An error names LOAN-001-T1 with the file and line of both tests
+  - id: CLI-010-T2
+    title: Trace fails on a definition named twice
+    status: proposed
+    level: integration
+    given:
+      - A test definition named by two tests
+    when: "`specai trace` runs, with and without `--strict`"
+    then:
+      - It prints the error
+      - It exits 1 both times

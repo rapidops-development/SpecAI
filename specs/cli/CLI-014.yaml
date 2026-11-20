@@ -1,0 +1,31 @@
+specai: "0.1"
+id: CLI-014
+title: Test locations in notes
+status: proposed
+statement: If a [[test definition]]'s `notes` appear to name the test that implements it, then `specai validate` shall report a warning.
+components: [CLI]
+related: [STD-010]
+rationale: |
+  `specai trace` works out which test implements a test definition. A location written into
+  `notes` goes stale as soon as the test moves.
+acceptance:
+  - Notes appear to name a test when they say "implemented by" or "tested in" followed by inline code in the same sentence, or name a test file such as `loans.test.ts` or `LoanTests.cs`.
+tests:
+  - id: CLI-014-T1
+    title: Location in notes warns
+    status: proposed
+    level: unit
+    given:
+      - A test definition whose notes say "Implemented by `SixthLoan_IsRefused` in `LoanTests.cs`"
+    when: The spec tree is validated
+    then:
+      - A warning names the test definition and its `notes` field
+  - id: CLI-014-T2
+    title: Other notes pass
+    status: proposed
+    level: unit
+    given:
+      - A test definition whose notes explain the case and mention `specai validate`
+    when: The spec tree is validated
+    then:
+      - No warning is reported

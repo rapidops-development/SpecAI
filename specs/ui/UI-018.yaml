@@ -1,0 +1,19 @@
+specai: "0.1"
+id: UI-018
+title: Flag a test definition named twice
+status: proposed
+statement: Where the server knows the component checkouts, if more than one test names a [[test definition]], then the UI shall flag it on its requirement's page.
+components: [UI]
+parent: STD-010
+related: [UI-014]
+tests:
+  - id: UI-018-T1
+    title: Definition named by two tests is flagged
+    status: proposed
+    level: unit
+    given:
+      - A test definition that test code names in two places
+    when: The user opens its requirement
+    then:
+      - Both places are shown as file and line
+      - A warning says it is named by 2 tests and should be named by one

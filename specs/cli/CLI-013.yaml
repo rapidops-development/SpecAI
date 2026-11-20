@@ -1,0 +1,48 @@
+specai: "0.1"
+id: CLI-013
+title: Untagged tests
+status: proposed
+statement: When `specai trace` runs, the tool shall list, for each [[component]], the tests in its code that name no [[test definition]] ID.
+components: [CLI]
+parent: STD-010
+rationale: |
+  Linking a test suite that predates the specs starts from the tests nobody has tagged yet.
+acceptance:
+  - An xUnit test is a method with a `[Fact]` or `[Theory]` attribute.
+  - A Vitest test is an `it` or `test` call, including `.each`, `.only` and `.skip`, whose first argument is a string literal followed by a callback.
+  - The list is information; it never makes `specai trace` fail.
+notes: |
+  Detection reads the source text with regular expressions rather than parsing it, so unusual
+  layouts can be missed or miscounted.
+tests:
+  - id: CLI-013-T1
+    title: Untagged xUnit methods
+    status: proposed
+    level: unit
+    given:
+      - An xUnit class with a tagged `[Fact]`, an untagged `[Fact]` and an untagged `[Theory]` with `[InlineData]`
+    when: The checkouts are traced
+    then:
+      - The two untagged methods are listed under their component, with file, line and method name
+  - id: CLI-013-T2
+    title: Untagged Vitest tests
+    status: proposed
+    level: unit
+    given:
+      - A Vitest file with a tagged `it`, and untagged `it`, `test`, `it.each`, `it.only` and `it.skip` calls
+      - A helper function called `test` that is not a Vitest test
+    when: The checkouts are traced
+    then:
+      - The five untagged tests are listed with file, line and name
+      - The helper is not listed
+  - id: CLI-013-T3
+    title: Untagged tests are reported but do not fail
+    status: proposed
+    level: integration
+    given:
+      - A covered requirement and an untagged test
+    when: "`specai trace` runs, with `--json` and with `--strict`"
+    then:
+      - The text output lists the untagged test under its component
+      - The JSON output holds it under `untagged`
+      - It exits 0

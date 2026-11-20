@@ -1,0 +1,40 @@
+specai: "0.1"
+id: CLI-011
+title: Test names one test definition
+status: proposed
+statement: If one test names more than one [[test definition]] ID, then `specai trace` shall report an error naming the test's place and the IDs.
+components: [CLI]
+parent: STD-010
+notes: |
+  An xUnit test is a method: several `Trait("SpecAI", ...)` attributes on one method name several
+  IDs. A Vitest test is a string: several IDs in square brackets in one test name.
+tests:
+  - id: CLI-011-T1
+    title: xUnit method with two traits
+    status: proposed
+    level: unit
+    given:
+      - An xUnit method with two `Trait("SpecAI", ...)` attributes
+    when: The checkouts are traced
+    then:
+      - An error names the method's file and line and both IDs
+  - id: CLI-011-T2
+    title: Vitest name with two IDs
+    status: proposed
+    level: unit
+    given:
+      - A Vitest test whose name holds two test definition IDs in square brackets
+    when: The checkouts are traced
+    then:
+      - Both IDs are linked
+      - An error names the test's file and line and both IDs
+  - id: CLI-011-T3
+    title: Trace fails on a test naming two definitions
+    status: proposed
+    level: integration
+    given:
+      - A test naming two test definitions
+    when: "`specai trace` runs, with and without `--strict`"
+    then:
+      - It prints the error
+      - It exits 1 both times

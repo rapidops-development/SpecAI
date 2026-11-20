@@ -1,0 +1,18 @@
+specai: "0.1"
+id: STD-010
+title: One test per test definition
+status: proposed
+statement: Test code shall link each [[test definition]] to exactly one test, and each test to exactly one test definition.
+acceptance:
+  - A [[requirement]] may have many test definitions.
+  - A parameterised test, such as an xUnit `[Theory]` or a Vitest `it.each`, counts as one test.
+components: [CLI]
+related: [STD-005]
+rationale: |
+  A one-to-one link keeps [[coverage]] honest: a test definition marked as linked has one test a
+  reviewer can read, and a failing test points at one test definition. Two tests of the same case
+  are either two cases, which each deserve a definition, or a duplicate. A test checking two
+  definitions hides which one broke.
+notes: |
+  `specai trace` enforces the rule; see [[CLI-010]] and [[CLI-011]]. Shared setup through fixtures
+  or helpers is fine.
