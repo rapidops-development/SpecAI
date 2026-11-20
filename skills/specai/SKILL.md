@@ -1,6 +1,6 @@
 ---
 name: specai
-description: SpecAI spec trees (specai.yaml, YAML requirements, test definitions, glossary terms). Use before changing behaviour in a repo whose AGENTS.md names a spec tree, when writing or editing requirements, test definitions or glossary terms, or when linking tests to test definition IDs.
+description: SpecAI spec trees (specai.yaml, YAML requirements, test definitions, glossary terms). Use before changing behaviour in a repo whose AGENTS.md names a spec tree, when writing or editing requirements, test definitions or glossary terms, when linking tests to test definition IDs, or when annotating code with the requirements it implements.
 ---
 
 # Working with SpecAI specs
@@ -33,7 +33,9 @@ run `npm ci` once in the SpecAI checkout.
    - add glossary terms for new domain words;
    - set `status: proposed` on everything you add or change, including approved items whose text you
      changed;
-   - set `deprecated` on requirements the change makes unwanted; keep their files.
+   - set `deprecated` on requirements the change makes unwanted; keep their files;
+   - when behaviour is specified now but built later, list the issue tracking it in the requirement's
+     `issues` (`owner/repo#number` or a URL), never as prose in `notes`.
 
    Done when every behaviour the task changes is stated in some requirement, and has a test
    definition.
@@ -41,20 +43,31 @@ run `npm ci` once in the SpecAI checkout.
 3. **Validate.** Run `<specai> validate <spec tree>`. Done at 0 errors. Fix warnings about avoided
    words by using the glossary term they name.
 
-4. **Implement.** Change the code and write the tests. Write exactly one test per test definition,
-   and name exactly one ID in each test: `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit,
-   `it('[LOAN-042-T1] …')` in Vitest. A parameterised test (`[Theory]`, `it.each`) counts as one.
-   Split a test that checks two definitions; share setup through fixtures or helpers. Done when the
-   tests pass.
+4. **Implement.** Change the code and write the tests.
+   - Write exactly one test per test definition, and name exactly one ID in each test:
+     `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit, `it('[LOAN-042-T1] …')` in Vitest. A parameterised
+     test (`[Theory]`, `it.each`) counts as one. Split a test that checks two definitions; share setup
+     through fixtures or helpers.
+   - Annotate the code that implements each requirement with a comment naming the requirement's ID,
+     directly above the declaration that carries the behaviour: `// SpecAI: LOAN-042`, or
+     `# SpecAI: LOAN-042, LOAN-043` in YAML, shell or Python. At the top of a file, before any code, it
+     covers the whole file. Annotations name requirements; tests name test definitions. Never swap
+     them.
+   - Remove an issue from the requirement's `issues` once the work it tracks is done and it is closed.
+
+   Done when the tests pass.
 
 5. **Trace.** Run `<specai> trace <spec tree>`. Done when every test definition you added or changed
-   shows as linked, and trace reports no errors and no links outside the requirement's components.
+   shows as linked, every requirement you implemented shows as implemented, and trace reports no
+   errors and no links or annotations outside the requirement's components.
    Trace finds each component's code at `<checkouts>/<path from specai.yaml>`; when it reports a
    missing checkout, such as when you work in a worktree or a renamed folder, make a folder of links
    named as `specai.yaml` expects and pass it with `--checkouts`.
 
 6. **Hand off.** In the pull request for the specs, list each requirement and test definition ID you
-   proposed, added or deprecated, with one line on why. The human approves them in the SpecAI UI or by
+   proposed, added or deprecated, with one line on why. In the code pull request, list the
+   requirements it touches: `<specai> impact <spec tree> --since <base branch>` prints them. The human
+   approves them in the SpecAI UI or by
    editing the files. When the spec tree lives in another repo than the code, open a pull request
    there too, and link the two.
 
@@ -79,5 +92,16 @@ turn:
 
 Put the lists in the pull request.
 
+## Annotating existing code
+
+When code predates its annotations, `<specai> trace` reports approved requirements that are not
+implemented. For each requirement, find the declaration that carries its behaviour and annotate it.
+When a requirement's behaviour is not built, list the issue tracking it in `issues`, replacing any
+"Not yet built" note; when nothing tracks it, list it for the human. Annotate only in components the
+requirement lists, and list any mismatch for the human, as for tests.
+
 Approval belongs to the human. The statuses you set are `draft`, `proposed` and `deprecated`; the
 approval guard in CI rejects any commit with your co-author trailer that sets `approved`.
+
+A spec tree uses the one version its `specai.yaml` declares. Leave it on that version unless the human
+asks for an upgrade, which `<specai> upgrade <spec tree>` does; `issues` needs version 0.2.
