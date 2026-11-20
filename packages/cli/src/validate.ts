@@ -31,6 +31,7 @@ export function validateTree(tree: SpecTree): Diagnostic[] {
   checkComponents(config, root, requirements, out)
   checkLinks(valid, termIndex, requirementIds, out)
   checkAvoidedWords(requirements, terms, out)
+  checkTestNotes(requirements, out)
   return out.sort((a, b) => a.file.localeCompare(b.file) || (a.line ?? 0) - (b.line ?? 0))
 }
 
@@ -223,6 +224,33 @@ function checkAvoidedWords(requirements: SpecFile[], terms: SpecFile[], out: Dia
           out.push({ severity: 'warning', rule: 'avoid', file: file.path, line: lineOf(file, pointer), id, field: pointer, message: `"${word}" is an avoided word; use [[${slug}]]` })
         }
       }
+    }
+  }
+}
+
+// Notes that name the test implementing a test definition: "implemented by" or "tested in" followed
+// by inline code in the same sentence, or a test file name. Kept narrow to avoid false alarms.
+const testLocation = [
+  /\b(?:implemented|tested)\s+(?:by|in)\b[^.\n]*`[^`\n]+`/i,
+  /[\w-]+\.(?:test|spec)\.[cm]?[jt]sx?\b/,
+  /\b\w+Tests?\.cs\b/,
+]
+
+function checkTestNotes(requirements: SpecFile[], out: Diagnostic[]) {
+  for (const file of requirements) {
+    for (const [i, test] of ((file.data as Requirement).tests ?? []).entries()) {
+      const notes = test.notes
+      if (!notes || !testLocation.some((pattern) => pattern.test(notes))) continue
+      const field = `/tests/${i}/notes`
+      out.push({
+        severity: 'warning',
+        rule: 'notes',
+        file: file.path,
+        line: lineOf(file, field),
+        id: test.id,
+        field,
+        message: 'notes appear to name the test that implements this test definition; leave that out, since `specai trace` works it out',
+      })
     }
   }
 }
