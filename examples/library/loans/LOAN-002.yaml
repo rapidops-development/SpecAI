@@ -1,7 +1,8 @@
-specai: "0.1"
+specai: "0.2"
 id: LOAN-002
 title: Overdue loans block borrowing
 status: proposed
 statement: If a [[member]] has an overdue [[loan]], then the lending service shall refuse a new loan until it is returned.
 components: [Library.API]
 related: [LOAN-001]
+issues: [acme/library#12]

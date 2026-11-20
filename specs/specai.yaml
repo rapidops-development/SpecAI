@@ -1,5 +1,5 @@
 # SpecAI's own specs, written in the SpecAI format.
-specai: "0.1"
+specai: "0.2"
 name: SpecAI
 areas:
   - standard

@@ -1,4 +1,4 @@
-specai: "0.1"
+specai: "0.2"
 term: Component
 aliases: [components]
 definition: A piece of software that implements requirements, such as a repo, listed in `specai.yaml`.

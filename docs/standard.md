@@ -1,9 +1,9 @@
-# The SpecAI standard, version 0.1
+# The SpecAI standard, version 0.2
 
 SpecAI is a YAML format for the requirements, test definitions and glossary of a piece of software.
 Humans and AI agents read and edit the same files. Agents propose; humans approve.
 
-The schema in [`schema/v0.1/`](../schema/v0.1/) is the official definition: JSON Schema 2020-12,
+The schema in [`schema/v0.2/`](../schema/v0.2/) is the official definition: JSON Schema 2020-12,
 itself written in YAML. It drives the validator, CI checks, editor validation and the UI's forms, and
 it is what agents are told their output must conform to. This document explains it. Where the two
 disagree, the schema wins and this document is wrong.
@@ -31,6 +31,15 @@ Each version of the standard has its own schema folder, and the tools refuse a v
 support. The standard stays at 0.x, where breaking changes are allowed, until it has been proved out
 on large, real spec trees.
 
+A spec tree uses one version throughout: the one its `specai.yaml` declares. `specai validate`
+checks the tree against that version's schema, and reports any file that declares another.
+`specai upgrade` rewrites a tree for the latest version, changing only what the new version needs.
+
+| Version | Changes |
+|---|---|
+| 0.2 | adds `issues` on requirements, `issueUrl` in `specai.yaml`, and [implementation annotations](#implementation-annotations) in code. Upgrading from 0.1 only changes each file's version line. |
+| 0.1 | first version |
+
 ## Spec tree
 
 A spec tree is a folder with this layout:
@@ -51,8 +60,8 @@ example, and [`specs/`](../specs/) holds SpecAI's own specs.
 
 ## YAML rules
 
-- Every file starts with `specai: "0.1"`. **Quote the version**: unquoted, YAML reads `0.1` as a
-  number.
+- Every file starts with the version, such as `specai: "0.2"`. **Quote the version**: unquoted,
+  YAML reads `0.2` as a number.
 - Only plain data: no anchors (`&x`), aliases (`*x`) or custom tags (`!tag`).
 - Quote, or use a block scalar for, any text containing `: ` or starting with a character YAML
   treats specially (`[`, `{`, `&`, `*`, `!`, `|`, `>`, `'`, `"`, `%`, `@`, `` ` ``). A block scalar
@@ -71,7 +80,7 @@ example, and [`specs/`](../specs/) holds SpecAI's own specs.
 ## `specai.yaml`
 
 ```yaml
-specai: "0.1"
+specai: "0.2"
 name: Lending library
 areas:
   - catalogue
@@ -89,6 +98,7 @@ components:
 | `name` | no | display name for the spec tree, such as the product it specifies; tools fall back to the folder name |
 | `areas` | yes | the area folders, in display order |
 | `components` | no | the components requirements may name |
+| `issueUrl` | no | link template for [issue](#issues) shorthand, using `{owner}`, `{repo}` and `{number}`; defaults to `https://github.com/{owner}/{repo}/issues/{number}` |
 
 Each component has a `name`, an optional `description`, and an optional `path`: where
 `specai trace` finds its code, relative to the checkouts folder. `path` defaults to the name, which
@@ -97,7 +107,7 @@ suits one repo per component.
 ## `area.yaml`
 
 ```yaml
-specai: "0.1"
+specai: "0.2"
 prefix: LOAN
 name: Loans
 description: Borrowing and returning copies.
@@ -118,7 +128,7 @@ One file per requirement, named by its ID only (`LOAN-001.yaml`), inside its are
 name never changes, even when the title does.
 
 ```yaml
-specai: "0.1"
+specai: "0.2"
 id: LOAN-001
 title: Loan limit
 status: proposed
@@ -152,6 +162,7 @@ tests:
 | `components` | no | | names from `specai.yaml` |
 | `parent` | no | | a requirement this one refines |
 | `related` | no | | other requirement IDs |
+| `issues` | no | | [issues](#issues) tracking work still to do to build it |
 | `tests` | no | | its [test definitions](#test-definitions) |
 
 "Plain" text allows [links](#links) but not Markdown.
@@ -178,6 +189,19 @@ Requirements Syntax) pattern where one fits. The schema does not enforce this.
 
 Patterns combine: "While a member has an overdue loan, when they borrow a copy, the lending
 service shall refuse the loan."
+
+### Issues
+
+When work to build a requirement is tracked as issues, list them in `issues`, each as
+`owner/repo#number` shorthand or a URL:
+
+```yaml
+issues: [acme/library#12, https://tracker.example.com/browse/LIB-7]
+```
+
+Keep an issue listed until it is closed, even once some code implements the requirement, and remove
+it then. The tools never look up an issue's state. A requirement with issues but no implementing code
+is planned; one with neither has not been looked at.
 
 ## Test definitions
 
@@ -209,12 +233,36 @@ Test code links back by naming the test-definition ID, once, in the one test tha
 Do not record the test's name or file in `notes`: the tools work it out, and `specai validate` warns
 when notes appear to.
 
+## Implementation annotations
+
+Code that implements a requirement names the requirement's ID in a comment whose text starts with
+`SpecAI:`, directly above the declaration that implements it:
+
+```csharp
+// SpecAI: LOAN-001, LOAN-002
+public LoanResult Borrow(Member member, Copy copy) { … }
+```
+
+```yaml
+# SpecAI: LOAN-004
+retentionDays: 30
+```
+
+At the top of a file, before any code, an annotation covers the whole file. Any comment syntax
+counts, so annotations work in any language and in configuration files.
+
+- Annotations name **requirement** IDs. Tests keep linking to test definitions: "implemented by"
+  and "tested by" are different facts.
+- A requirement may be implemented in many places, and one place may implement many requirements.
+- Spec files never record where code is; the tools work it out from the annotations, which move with
+  the code.
+
 ## Glossary terms
 
 One file per term in `glossary/`, named by a lowercase-hyphenated slug (`glossary/loan.yaml`).
 
 ```yaml
-specai: "0.1"
+specai: "0.2"
 term: Member
 aliases: [members]
 definition: A person registered with the library who may borrow [[copy|copies]].

@@ -1,4 +1,4 @@
-specai: "0.1"
+specai: "0.2"
 term: Requirement
 aliases: [requirements]
 definition: One testable statement of what the software shall do, with a stable ID, in its own file.

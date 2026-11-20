@@ -18,8 +18,14 @@ describe('edit forms', () => {
       ['components', 'components', false],
       ['parent', 'requirementId', false],
       ['related', 'requirementIds', false],
+      ['issues', 'names', false],
       ['tests', 'tests', false],
     ])
+  })
+
+  it('builds forms from the schema of the spec tree\'s version', () => {
+    const fields = formFields(schemaDocuments('0.1') as never, 'requirement')
+    expect(fields.map((f) => f.key)).not.toContain('issues')
   })
 
   it('takes test definition and glossary fields from the schema', () => {

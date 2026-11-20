@@ -1,0 +1,32 @@
+specai: "0.2"
+id: CLI-015
+title: Validate against the tree's version
+status: proposed
+statement: >-
+  When `specai validate` runs, the tool shall check the [[spec tree]] against the schema of the
+  version its `specai.yaml` declares, and shall report a version it does not support as an error.
+acceptance:
+  - The tool supports every released version, so a tree keeps validating until it is upgraded.
+components: [CLI]
+related: [STD-012, CLI-001]
+tests:
+  - id: CLI-015-T1
+    title: Each version keeps its own rules
+    status: proposed
+    level: unit
+    given:
+      - A 0.1 [[spec tree]] with a [[requirement]] listing `issues`
+      - The same tree at 0.2
+    when: Both are validated
+    then:
+      - The 0.1 tree reports `issues` as an unknown field
+      - The 0.2 tree passes
+  - id: CLI-015-T2
+    title: Unsupported version is reported
+    status: proposed
+    level: unit
+    given:
+      - A [[spec tree]] whose `specai.yaml` declares version 9.9
+    when: The spec tree is validated
+    then:
+      - One error names the version and the supported versions

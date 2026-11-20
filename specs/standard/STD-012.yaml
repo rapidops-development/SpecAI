@@ -1,0 +1,21 @@
+specai: "0.2"
+id: STD-012
+title: One version per spec tree
+status: proposed
+statement: Every file in a [[spec tree]] shall declare the version of the standard that its `specai.yaml` declares.
+components: [CLI]
+related: [STD-002]
+rationale: |
+  A tree read under one set of rules gives one answer. A file left on an older version after an
+  upgrade is a mistake, and `specai upgrade` fixes it.
+tests:
+  - id: STD-012-T1
+    title: File on another version is rejected
+    status: proposed
+    level: unit
+    given:
+      - A [[spec tree]] whose `specai.yaml` declares 0.2
+      - A [[requirement]] in it declaring 0.1
+    when: The spec tree is validated
+    then:
+      - An error names the requirement's file, its version and the tree's version

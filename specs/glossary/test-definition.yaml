@@ -1,4 +1,4 @@
-specai: "0.1"
+specai: "0.2"
 term: Test definition
 aliases: [test definitions]
 definition: A description of what one test checks, in Given/When/Then form, inside the [[requirement]] it verifies. Exactly one test implements it.

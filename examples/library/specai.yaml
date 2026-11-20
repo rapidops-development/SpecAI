@@ -1,5 +1,5 @@
 # A small, made-up lending library, showing every SpecAI file kind.
-specai: "0.1"
+specai: "0.2"
 name: Lending library
 areas:
   - catalogue

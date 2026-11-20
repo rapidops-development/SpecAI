@@ -1,0 +1,34 @@
+specai: "0.2"
+id: CLI-016
+title: Upgrade a spec tree
+status: proposed
+statement: >-
+  When `specai upgrade` runs, the tool shall rewrite every file in the [[spec tree]] for the latest
+  version of the standard, changing nothing but what the new version requires.
+acceptance:
+  - From 0.1 to 0.2, only each file's version line changes; comments and layout stay as they were.
+  - A tree already at the latest version is left unchanged.
+components: [CLI]
+related: [STD-012]
+rationale: |
+  An upgrade by hand across hundreds of files invites mistakes; a tool that touches only the version
+  line gives a reviewable diff.
+tests:
+  - id: CLI-016-T1
+    title: Upgrades every file, keeping comments
+    status: proposed
+    level: unit
+    given:
+      - A 0.1 [[spec tree]] with a comment on a version line
+    when: It is upgraded
+    then:
+      - Every file declares 0.2, the comment is kept and the tree validates
+  - id: CLI-016-T2
+    title: Latest tree is unchanged
+    status: proposed
+    level: unit
+    given:
+      - A [[spec tree]] already at the latest version
+    when: It is upgraded
+    then:
+      - No file changes and the tool says the tree is already at that version

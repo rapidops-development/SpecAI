@@ -1,0 +1,45 @@
+specai: "0.2"
+id: STD-011
+title: Issues tracking unbuilt work
+status: proposed
+statement: >-
+  Where work to build a [[requirement]] is tracked as issues, the requirement shall list them in
+  its `issues` field, each as `owner/repo#number` shorthand or a URL.
+acceptance:
+  - '`specai.yaml` may set `issueUrl`, a link template using `{owner}`, `{repo}` and `{number}`, which must place the number; shorthand links to GitHub when it is not set.'
+  - An issue stays listed until it is closed, even once some code implements the requirement.
+  - The tools never look up an issue's state.
+components: [Schema]
+rationale: |
+  A requirement with an issue is planned; one with neither an issue nor implementing code has not
+  been looked at. Free-text notes such as "Not yet built: acme/library#12" cannot tell the two
+  apart for a tool. Shorthand keeps files short, and the template keeps the standard independent of
+  any one issue tracker.
+tests:
+  - id: STD-011-T1
+    title: Shorthand and URLs are accepted
+    status: proposed
+    level: unit
+    given:
+      - A [[requirement]] listing `acme/library#12` and a tracker URL in `issues`
+    when: It is checked against the schema
+    then:
+      - It is accepted
+  - id: STD-011-T2
+    title: Other text is rejected
+    status: proposed
+    level: unit
+    given:
+      - A [[requirement]] listing "fix later" in `issues`
+    when: It is checked against the schema
+    then:
+      - It is rejected
+  - id: STD-011-T3
+    title: Link template must place the number
+    status: proposed
+    level: unit
+    given:
+      - A `specai.yaml` whose `issueUrl` has no `{number}`
+    when: It is checked against the schema
+    then:
+      - It is rejected, while a template with `{number}` is accepted
