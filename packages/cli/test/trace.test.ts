@@ -117,7 +117,7 @@ describe('specai trace', () => {
     const run = (dir: string, ...args: string[]) => spawnSync(process.execPath, [main, 'trace', root, '--checkouts', dir, ...args], { encoding: 'utf8' })
     const covered = run(checkouts({ 'Library.API/LoanTests.cs': xunit.replace('[Fact, Trait("SpecAI", "LOAN-009-T1")]', '[Fact]') }))
     expect(covered.status).toBe(0)
-    expect(covered.stdout).toContain('LOAN-001  approved    covered  1/1 test definitions linked')
+    expect(covered.stdout).toContain('LOAN-001  approved    not implemented  covered  1/1 test definitions linked')
     expect(covered.stdout).toContain('1 of 1 approved requirement covered')
     expect(run(checkouts({ 'Library.API/LoanTests.cs': xunit })).status).toBe(1)
     const none = checkouts({ 'Library.API/Other.cs': '' })
@@ -258,7 +258,7 @@ describe('loans', () => {
     })
 
     it('[CLI-013-T3] reports untagged tests without failing', () => {
-      const files = cs(method('A', 'LOAN-001-T1'), method('B', 'LOAN-001-T2'), method('Extra'))
+      const files = { ...cs(method('A', 'LOAN-001-T1'), method('B', 'LOAN-001-T2'), method('Extra')), 'Library.API/Loans.cs': '// SpecAI: LOAN-001\nclass Loans { }\n' }
       const text = run(files, '--strict')
       expect(text.status).toBe(0)
       expect(text.stdout).toContain('  Library.API: 1 test\n    Library.API/LoanTests.cs:12  Extra')

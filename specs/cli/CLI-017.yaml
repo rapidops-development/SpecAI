@@ -1,0 +1,46 @@
+specai: "0.2"
+id: CLI-017
+title: Trace implementation annotations
+status: proposed
+statement: >-
+  When `specai trace` runs, the tool shall find the [[implementation annotation|implementation annotations]]
+  in each [[component]]'s code, outside test files and documentation, and link each requirement ID
+  they name to its [[requirement]], with file and line.
+acceptance:
+  - Only annotations in the requirement's own components count; a requirement with no components counts all of them.
+  - An annotation in a component the requirement does not list is reported as a warning and not counted.
+components: [CLI]
+related: [STD-013, CLI-007, CLI-012]
+rationale: |
+  Test files link to test definitions, not requirements, and often hold example annotations as test
+  data, so reading them would invent links. Scoping to components works the same way as for test
+  links.
+tests:
+  - id: CLI-017-T1
+    title: Annotations in any comment syntax
+    status: proposed
+    level: unit
+    given:
+      - Annotations in C#, TypeScript, YAML and SQL comments, one naming two requirements
+    when: The checkouts are traced
+    then:
+      - Each requirement is linked to every annotation naming it, with file and line
+  - id: CLI-017-T2
+    title: Test files and documentation are ignored
+    status: proposed
+    level: unit
+    given:
+      - Annotations in a Vitest file, an xUnit test class and a README
+    when: The checkouts are traced
+    then:
+      - None is linked or reported
+  - id: CLI-017-T3
+    title: Annotation in another component
+    status: proposed
+    level: unit
+    given:
+      - A requirement listing only Library.API
+      - An annotation naming it in Library.Web
+    when: The checkouts are traced
+    then:
+      - The annotation is not counted, and a warning names its place and Library.API

@@ -1,0 +1,22 @@
+specai: "0.2"
+id: CLI-021
+title: Annotations on removed requirements
+status: proposed
+statement: >-
+  If an [[implementation annotation]] names a removed [[requirement]], then `specai trace` shall
+  report a warning naming its file, line and requirement.
+components: [CLI]
+related: [CLI-017, STD-007]
+rationale: |
+  A removed requirement is no longer wanted and no longer implemented, so code still claiming to
+  implement it is either dead or wrongly annotated.
+tests:
+  - id: CLI-021-T1
+    title: Removed requirement still annotated
+    status: proposed
+    level: unit
+    given:
+      - An annotation naming a removed requirement
+    when: The checkouts are traced
+    then:
+      - A warning names the file, line and requirement

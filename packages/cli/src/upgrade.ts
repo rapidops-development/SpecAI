@@ -1,3 +1,4 @@
+// SpecAI: CLI-016
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { latestVersion, supportedVersions } from './schema.ts'

@@ -1,0 +1,58 @@
+specai: "0.2"
+id: CLI-020
+title: Impact of a change
+status: proposed
+statement: >-
+  When `specai impact --since <rev>` runs, the tool shall list the [[requirement|requirements]] named
+  by [[implementation annotation|implementation annotations]] or linked tests in the files of each
+  [[component]] that changed since the point where the checkout branched from that revision.
+acceptance:
+  - Changes not yet committed, including new files, count.
+  - A changed file is read before and after the change, so a deleted annotation or test lists its requirement, marked as removed.
+  - A component whose checkout is missing, or whose repository does not have the revision, is reported and skipped.
+  - Files are the unit of change; a requirement is listed when anything in a file naming it changed.
+components: [CLI]
+related: [CLI-017]
+rationale: |
+  Reviewers of a code change want to know which requirements it touches, to check them against the
+  specs. Working at file level needs no language parsing; the output keeps line numbers, so finer
+  matching can come later.
+tests:
+  - id: CLI-020-T1
+    title: Changed annotated files
+    status: proposed
+    level: integration
+    given:
+      - A committed change to a file annotated with one requirement
+      - A new, uncommitted file annotated with another
+      - An unchanged file annotated with a third
+    when: Impact since main is worked out
+    then:
+      - The first two requirements are listed with their places, and the third is not
+  - id: CLI-020-T2
+    title: Deleted annotations
+    status: proposed
+    level: integration
+    given:
+      - A deleted file that was annotated with a requirement
+    when: Impact since main is worked out
+    then:
+      - The requirement is listed, with the place marked as removed
+  - id: CLI-020-T3
+    title: Changed tests
+    status: proposed
+    level: integration
+    given:
+      - A changed test naming a test definition
+    when: Impact since main is worked out
+    then:
+      - The test definition's requirement is listed, with the test's place and the test definition ID
+  - id: CLI-020-T4
+    title: Components that cannot be compared
+    status: proposed
+    level: integration
+    given:
+      - A component whose repository lacks the revision, and one with no checkout
+    when: Impact is worked out
+    then:
+      - Both are reported with the reason

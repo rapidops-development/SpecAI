@@ -63,7 +63,8 @@ specai validate path/to/specs --json          # machine-readable output
 ```sh
 specai trace path/to/specs                    # coverage of every requirement
 specai trace path/to/specs --checkouts ~/src  # where the component checkouts are
-specai trace path/to/specs --strict           # also fail unless every approved requirement is covered
+specai trace path/to/specs --strict           # also fail unless every approved requirement is covered,
+                                              # and implemented or planned
 specai trace path/to/specs --json             # machine-readable output
 ```
 
@@ -74,6 +75,17 @@ ID that does not exist, warns about links in a component the requirement does no
 tests that name no test definition. Each component's code is looked for at `<checkouts>/<path>`, and
 `--checkouts` defaults to the folder holding the spec tree's git repo, which suits repos cloned side
 by side. `specai serve` takes the same option and shows coverage in the UI.
+
+### See which requirements a change touches
+
+```sh
+specai impact path/to/specs --since main      # requirements named in code and tests changed since main
+specai impact path/to/specs --since main --json
+```
+
+Code names the requirements it implements in a comment such as `// SpecAI: LOAN-001`; see
+[implementation annotations](docs/standard.md#implementation-annotations). `specai trace` reports each
+requirement as implemented, planned (it lists `issues`) or not implemented, alongside its coverage.
 
 ### Upgrade to a new version of the standard
 

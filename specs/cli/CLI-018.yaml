@@ -1,0 +1,39 @@
+specai: "0.2"
+id: CLI-018
+title: Annotations that name no requirement
+status: proposed
+statement: >-
+  If an [[implementation annotation]] names something other than the ID of a [[requirement]] in the
+  [[spec tree]], then `specai trace` shall report an error naming the file, line and entry.
+components: [CLI]
+related: [CLI-017]
+rationale: |
+  A typo or a test definition ID in an annotation would otherwise leave the code silently unlinked.
+tests:
+  - id: CLI-018-T1
+    title: Unknown requirement
+    status: proposed
+    level: unit
+    given:
+      - An annotation naming a requirement ID no requirement has
+    when: The checkouts are traced
+    then:
+      - It is reported with its file and line
+  - id: CLI-018-T2
+    title: Test definition ID or other text
+    status: proposed
+    level: unit
+    given:
+      - An annotation naming a test definition ID and some words
+    when: The checkouts are traced
+    then:
+      - Each entry is reported, saying whether it is a test definition ID or not an ID
+  - id: CLI-018-T3
+    title: Trace fails
+    status: proposed
+    level: unit
+    given:
+      - An annotation naming a requirement ID no requirement has
+    when: '`specai trace` runs'
+    then:
+      - It prints the error and exits with status 1

@@ -6,7 +6,8 @@ import { checkApprovals } from './approval.ts'
 import { createSpecServer } from './serve.ts'
 import { buildIndex } from './spec-index.ts'
 import { defaultCheckouts } from './trace.ts'
-import { formatText, formatTrace } from './report.ts'
+import { impact } from './impact.ts'
+import { formatImpact, formatText, formatTrace, unimplementedApproved } from './report.ts'
 import { loadSpecTree } from './tree.ts'
 import { UpgradeError, upgradeTree } from './upgrade.ts'
 import { validateTree } from './validate.ts'
@@ -21,12 +22,19 @@ Commands:
   trace [dir]      Report which test definitions have linked test code
     --checkouts <dir>  Folder holding the component checkouts (default: the folder
                        holding the spec tree's git repo)
-    --strict       Also fail unless every approved requirement is covered
+    --strict       Also fail unless every approved requirement is covered,
+                   and implemented or planned
     --json         Print the result as JSON
                    Fails on errors: unknown IDs, a test definition named by
-                   more than one test, or a test naming more than one
+                   more than one test, a test naming more than one, or an
+                   implementation annotation naming no requirement
   upgrade [dir]    Rewrite a spec tree for the latest version of the standard,
                    changing only each file's version line
+  impact [dir]     List the requirements named in code and tests changed since a
+                   revision, in every component
+    --since <rev>  The revision to compare with, such as main (required)
+    --checkouts <dir>  As for trace
+    --json         Print the result as JSON
   serve [dir]      Browse a spec tree in the web UI (default: current folder)
     --port <n>     Port to listen on (default: 4321)
     --checkouts <dir>  As for trace, to show coverage
@@ -38,6 +46,7 @@ export function run(argv: string[]): number {
   if (command === 'serve') return serve(rest)
   if (command === 'trace') return traceCommand(rest)
   if (command === 'upgrade') return upgrade(rest)
+  if (command === 'impact') return impactCommand(rest)
   process.stdout.write(usage)
   return command === undefined || command === '--help' || command === '-h' ? 0 : 2
 }
@@ -125,13 +134,41 @@ function traceCommand(argv: string[]): number {
   const result = index.trace
   const approved = index.requirements.filter((r) => r.status === 'approved')
   const uncovered = approved.filter((r) => result.coverage[r.id] !== 'covered')
+  const unimplemented = unimplementedApproved(index.requirements, result)
   if (values.json) {
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
   } else {
     process.stdout.write(`${formatTrace(index.requirements, result)}\n`)
   }
-  const errors = result.unknown.length + Object.keys(result.duplicates).length + result.multiple.length
-  return errors > 0 || (values.strict && uncovered.length > 0) ? 1 : 0
+  const errors =
+    result.unknown.length + Object.keys(result.duplicates).length + result.multiple.length + result.unknownAnnotations.length + result.badAnnotations.length
+  return errors > 0 || (values.strict && (uncovered.length > 0 || unimplemented.length > 0)) ? 1 : 0
+}
+
+function impactCommand(argv: string[]): number {
+  const { values, positionals } = parseArgs({
+    args: argv,
+    allowPositionals: true,
+    options: { since: { type: 'string' }, checkouts: { type: 'string' }, json: { type: 'boolean' } },
+  })
+  if (!values.since) {
+    process.stderr.write('specai: impact needs --since <rev>, such as --since main\n')
+    return 2
+  }
+  const dir = positionals[0] ?? '.'
+  const root = resolve(dir)
+  if (!existsSync(root)) {
+    process.stderr.write(`specai: ${dir} does not exist\n`)
+    return 2
+  }
+  const index = buildIndex(root)
+  if (!index.config) {
+    process.stderr.write(`specai: ${dir} has no valid specai.yaml; run specai validate\n`)
+    return 2
+  }
+  const result = impact(index.config, index.requirements, resolve(values.checkouts ?? defaultCheckouts(root)), values.since)
+  process.stdout.write(values.json ? `${JSON.stringify(result, null, 2)}\n` : `${formatImpact(result)}\n`)
+  return 0
 }
 
 if (import.meta.main) process.exitCode = run(process.argv.slice(2))

@@ -1,0 +1,6 @@
+specai: "0.2"
+term: Implementation status
+definition: >-
+  Whether a [[requirement]] is implemented (an [[implementation annotation]] in its components names
+  it), planned (it lists issues) or not implemented. Worked out by `specai trace`, never written into
+  files.
