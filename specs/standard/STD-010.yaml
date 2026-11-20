@@ -14,5 +14,5 @@ rationale: |
   are either two cases, which each deserve a definition, or a duplicate. A test checking two
   definitions hides which one broke.
 notes: |
-  `specai trace` enforces the rule; see [[CLI-010]] and [[CLI-011]]. Shared setup through fixtures
+  `specai trace` enforces the rule; see [[CLI-010]]. Shared setup through fixtures
   or helpers is fine.

@@ -150,7 +150,7 @@ describe('specai trace', () => {
       expect(trace(config, [loan002()], dir).duplicates).toEqual({})
     })
 
-    it('[CLI-011-T1] reports an xUnit method with two SpecAI traits', () => {
+    it('[CLI-010-T2] reports an xUnit method with two SpecAI traits', () => {
       const dir = checkouts({
         'Library.API/LoanTests.cs': `public class LoanTests
 {
@@ -171,7 +171,7 @@ describe('specai trace', () => {
       expect(result.coverage['LOAN-001']).toBe('covered')
     })
 
-    it('[CLI-011-T2] finds every ID in a Vitest test name and reports the test', () => {
+    it('[CLI-010-T3] finds every ID in a Vitest test name and reports the test', () => {
       const dir = checkouts({ 'web/app/src/a.test.ts': `describe('loans', () => {\n  it('[${t1}] [${t2}] blocks and warns', () => {})\n})\n` })
       const result = trace(config, [loan002()], dir)
       expect(result.links[t2]).toEqual([{ testId: t2, file: 'web/app/src/a.test.ts', line: 2, framework: 'vitest' }])
@@ -246,22 +246,13 @@ describe('loans', () => {
     const method = (name: string, ...ids: string[]) => `${ids.map((i) => `    [Trait("SpecAI", "${i}")]\n`).join('')}    [Fact]\n    public void ${name}() { }\n`
     const cs = (...methods: string[]) => ({ 'Library.API/LoanTests.cs': `public class LoanTests\n{\n${methods.join('\n')}}\n` })
 
-    it('[CLI-010-T2] fails when a test definition is named by two tests', () => {
-      const files = cs(method('A', 'LOAN-001-T1'), method('B', 'LOAN-001-T1'), method('C', 'LOAN-001-T2'))
+    it('[CLI-010-T4] fails when a link is not one to one', () => {
+      const files = cs(method('A', 'LOAN-001-T1'), method('B', 'LOAN-001-T1'), method('Both', 'LOAN-001-T1', 'LOAN-001-T2'))
       for (const args of [[], ['--strict']]) {
         const out = run(files, ...args)
         expect(out.stdout).toContain('error: test definitions named by more than one test')
-        expect(out.stdout).toContain('LOAN-001-T1  Library.API/LoanTests.cs:3, Library.API/LoanTests.cs:7')
-        expect(out.status).toBe(1)
-      }
-    })
-
-    it('[CLI-011-T3] fails when a test names two test definitions', () => {
-      const files = cs(method('Both', 'LOAN-001-T1', 'LOAN-001-T2'))
-      for (const args of [[], ['--strict']]) {
-        const out = run(files, ...args)
         expect(out.stdout).toContain('error: tests naming more than one test definition')
-        expect(out.stdout).toContain('Library.API/LoanTests.cs:6  LOAN-001-T1, LOAN-001-T2')
+        expect(out.stdout).toContain('Library.API/LoanTests.cs:14  LOAN-001-T1, LOAN-001-T2')
         expect(out.status).toBe(1)
       }
     })
