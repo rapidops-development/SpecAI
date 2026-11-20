@@ -1,5 +1,5 @@
 import { execFileSync, spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -84,6 +84,17 @@ describe('impact', () => {
     expect(result.skipped).toEqual([
       { component: 'Library.API', reason: `nope is not a revision in ${join(checkouts, 'Library.API')}` },
       { component: 'Library.Web', reason: `no checkout at ${join(checkouts, 'Library.Web')}` },
+    ])
+  })
+
+  it('[CLI-020-T5] compares a component checkout reached through a symbolic link', () => {
+    const { api } = repo({ 'src/Loans.cs': loans })
+    write(api, { 'src/Loans.cs': `${loans}// a change\n` })
+    const checkouts = mkdtempSync(join(tmpdir(), 'specai-links-'))
+    symlinkSync(api, join(checkouts, 'Library.API'), 'dir')
+    const result = impact(config, requirements, checkouts, 'main')
+    expect(result.requirements).toEqual([
+      { id: 'LOAN-001', title: 'Title of LOAN-001', status: 'approved', places: [{ kind: 'implementation', file: 'Library.API/src/Loans.cs', line: 3 }] },
     ])
   })
 

@@ -11,6 +11,7 @@ acceptance:
   - A changed file is read before and after the change, so a deleted annotation or test lists its requirement, marked as removed.
   - A component whose checkout is missing, or whose repository does not have the revision, is reported and skipped.
   - Files are the unit of change; a requirement is listed when anything in a file naming it changed.
+  - A component checkout reached through a symbolic link, such as a link to a worktree, is compared like a folder at that place.
 components: [CLI]
 related: [CLI-017]
 rationale: |
@@ -56,3 +57,13 @@ tests:
     when: Impact is worked out
     then:
       - Both are reported with the reason
+  - id: CLI-020-T5
+    title: Component checkout reached through a symbolic link
+    status: proposed
+    level: integration
+    given:
+      - A checkouts folder whose component folder is a symbolic link to a git checkout
+      - A changed file in that checkout annotated with a requirement
+    when: Impact since main is worked out
+    then:
+      - The requirement is listed, with its place given under the component folder's name in the checkouts folder
