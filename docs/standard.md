@@ -256,6 +256,11 @@ counts, so annotations work in any language and in configuration files.
 - A requirement may be implemented in many places, and one place may implement many requirements.
 - Spec files never record where code is; the tools work it out from the annotations, which move with
   the code.
+- Annotations in test files (`*.test.*`, `*.spec.*`, and `.cs` files holding xUnit tests) and in
+  documentation (`.md`, `.mdx`, `.txt`) are ignored: tests link to test definitions, and such files
+  often show annotations as examples.
+
+See [implementation status](#implementation-status) for what `specai trace` reports from them.
 
 ## Glossary terms
 
@@ -342,7 +347,32 @@ all of them.
 | test code naming a test definition in a component its requirement does not list, so it is not counted | warning |
 | tests naming no test definition, listed per component | information |
 
+| an implementation annotation naming a requirement that does not exist, a test definition ID, or text that is not an ID | error |
+| an implementation annotation in a component its requirement does not list, so it is not counted | warning |
+| an implementation annotation naming a removed requirement | warning |
+| an approved requirement that is not implemented: no annotation and no `issues` | warning |
+
 Errors make `specai trace` fail. It finds tests by pattern matching, not by parsing: an xUnit test is a
 method with a `[Fact]` or `[Theory]` attribute, and a Vitest test is an `it` or `test` call (with any
 of `.each`, `.only`, `.skip` and the like) whose first argument is a string literal followed by the
 test function. The list of untagged tests is a guide, not an exact count.
+
+## Implementation status
+
+`specai trace` also works out each requirement's implementation status from the
+[implementation annotations](#implementation-annotations) in its components:
+
+| Status | Meaning |
+|---|---|
+| implemented | an annotation in one of its components names it |
+| planned | no annotation names it, but it lists [issues](#issues) |
+| not implemented | neither |
+
+Like coverage, it is reported and never written into spec files. An approved requirement that is not
+implemented is a warning, so a spec tree can adopt annotations gradually; `specai trace --strict`
+fails on it, as it does on an approved requirement that is not covered.
+
+`specai impact --since <rev>` lists the requirements named by annotations or linked tests in files
+changed since the checkout branched from `<rev>`, including changes not yet committed. It reads each
+changed file before and after the change, so deleted code still lists its requirements.
+

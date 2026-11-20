@@ -1,0 +1,36 @@
+specai: "0.2"
+id: UI-019
+title: Show implementation status
+status: proposed
+statement: >-
+  Where the server knows the component checkouts, the UI shall show each [[requirement]]'s
+  [[implementation status]] and where [[implementation annotation|implementation annotations]] name
+  it, and let the user filter and group by implementation status.
+acceptance:
+  - A requirement page lists the places that implement it separately from the tests that check it.
+  - A requirement no code names says so, with the annotation to add.
+components: [UI]
+related: [UI-014, CLI-019]
+rationale: |
+  A reviewer approving a requirement wants to see whether it is built yet, and where, without
+  leaving the page. Implemented by and tested by are different facts, so they are shown apart.
+tests:
+  - id: UI-019-T1
+    title: Filter and group by implementation status
+    status: proposed
+    level: unit
+    given:
+      - Requirements that are implemented, planned and not implemented
+    when: The user filters and groups by implementation status
+    then:
+      - Only the chosen statuses are listed
+      - Groups follow the order implemented, planned, not implemented
+  - id: UI-019-T2
+    title: Implementing code on the requirement page
+    status: proposed
+    level: unit
+    given:
+      - A requirement with one implementation annotation, then with none
+    when: Its page is shown
+    then:
+      - The annotation's file and line are listed, then a note says no code names it yet

@@ -36,6 +36,7 @@ decisions and plans live elsewhere; the specs are the current desired state.
 | `components` | where the behaviour is implemented |
 | `parent` | the requirement this one refines, when it breaks a larger one down |
 | `related` | requirements a reader should look at alongside this one |
+| `issues` | issues tracking work still to do to build it, as `owner/repo#number` or a URL; not prose in `notes` |
 
 ### Statements in EARS
 
@@ -84,6 +85,30 @@ counts as one test. `<specai> trace` fails when test code breaks this.
   fine.
 - Give a second test of the same case its own definition, or delete it as a true duplicate.
 - Don't record a test's name or file in `notes`; trace derives it.
+
+## Implementation annotations
+
+Code names the requirements it implements in a comment whose text starts with `SpecAI:`, so trace
+can report each requirement as implemented, and `impact` can list the requirements a change touches.
+
+```csharp
+// SpecAI: LOAN-001, LOAN-002
+public LoanResult Borrow(Member member, Copy copy) { … }
+```
+
+- Put it directly above the declaration that carries the behaviour: the handler, policy, validator,
+  component or configuration key, not every caller. At the top of a file, before any code, it covers
+  the whole file.
+- Any comment syntax works: `//`, `#`, `--`, `/* */`, `<!-- -->`.
+- Name requirement IDs only, separated by commas, never test definition IDs. A requirement may be
+  implemented in several places, and one declaration may implement several requirements.
+- Annotate only in a component the requirement lists in `components`; trace counts no others.
+- Not in test files or documentation: trace ignores them there.
+- Don't write file paths or "Implemented by" notes into spec files; the annotations replace them.
+
+A requirement with no annotation is planned when it lists `issues`, and not implemented otherwise.
+List the issue when you specify behaviour that is not built yet, and remove it once the issue is
+closed.
 
 ## Glossary terms
 

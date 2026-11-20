@@ -1,12 +1,13 @@
 import type { IndexedRequirement, SpecIndex } from '../types.ts'
 
-export const facets = ['area', 'status', 'coverage', 'tag', 'component', 'level'] as const
+export const facets = ['area', 'status', 'implementation', 'coverage', 'tag', 'component', 'level'] as const
 export type Facet = (typeof facets)[number]
 export type Grouping = Facet | 'none'
 
 export const facetLabels: Record<Facet, string> = {
   area: 'Area',
   status: 'Status',
+  implementation: 'Implementation',
   coverage: 'Coverage',
   tag: 'Tag',
   component: 'Component',
@@ -23,6 +24,13 @@ export const coverageLabels: Record<string, string> = {
   untested: 'No test definitions',
 }
 
+export const implementationOrder = ['implemented', 'planned', 'unimplemented']
+export const implementationLabels: Record<string, string> = {
+  implemented: 'Implemented',
+  planned: 'Planned',
+  unimplemented: 'Not implemented',
+}
+
 export interface ListState {
   q: string
   filters: Record<Facet, string[]>
@@ -30,7 +38,7 @@ export interface ListState {
 }
 
 export function emptyFilters(): Record<Facet, string[]> {
-  return { area: [], status: [], coverage: [], tag: [], component: [], level: [] }
+  return { area: [], status: [], implementation: [], coverage: [], tag: [], component: [], level: [] }
 }
 
 export function parseListState(search: string): ListState {
@@ -56,13 +64,17 @@ export function serializeListState(state: ListState): string {
 
 /**
  * The values a requirement has for a facet. A requirement with no tests has the level "untested".
- * Coverage comes from the index's trace, and is empty when the server was not given checkouts.
+ * Coverage and implementation come from the index's trace, and is empty when the server was not given checkouts.
  */
 export function facetValues(req: IndexedRequirement, facet: Facet, index?: SpecIndex): string[] {
   switch (facet) {
     case 'coverage': {
       const coverage = index?.trace?.coverage[req.id]
       return coverage ? [coverage] : []
+    }
+    case 'implementation': {
+      const implementation = index?.trace?.implementation?.[req.id]
+      return implementation ? [implementation] : []
     }
     case 'area':
       return [req.area]
@@ -130,6 +142,7 @@ function sortValues(index: SpecIndex, facet: Facet, values: string[]): string[] 
     : facet === 'status' ? rank(statusOrder)
     : facet === 'level' ? rank(levelOrder)
     : facet === 'coverage' ? rank(coverageOrder)
+    : facet === 'implementation' ? rank(implementationOrder)
     : facet === 'component' ? rank((index.config?.components ?? []).map((c) => c.name))
     : () => 0
   return values.sort((a, b) => by(a) - by(b) || a.localeCompare(b))
@@ -138,6 +151,7 @@ function sortValues(index: SpecIndex, facet: Facet, values: string[]): string[] 
 export function valueLabel(index: SpecIndex, facet: Facet, value: string): string {
   if (facet === 'area') return index.areas.find((a) => a.folder === value)?.name ?? value
   if (facet === 'coverage') return coverageLabels[value] ?? value
+  if (facet === 'implementation') return implementationLabels[value] ?? value
   if (facet === 'level') return value === 'e2e' ? 'End to end' : value === 'untested' ? 'No tests' : value[0].toUpperCase() + value.slice(1)
   if (facet === 'status') return value[0].toUpperCase() + value.slice(1)
   return value

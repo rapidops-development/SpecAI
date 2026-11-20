@@ -8,7 +8,8 @@ import { Status } from '../components/Status.tsx'
 import { StatusButtons } from '../components/StatusButtons.tsx'
 import { Text } from '../components/Text.tsx'
 import { Link, paths } from '../router.tsx'
-import { coverageLabels } from '../lib/filters.ts'
+import { coverageLabels, implementationLabels } from '../lib/filters.ts'
+import { issueHref } from '../lib/issues.ts'
 import type { IndexedRequirement, TestDefinition } from '../types.ts'
 
 export function RequirementPage({ id }: { id: string }) {
@@ -61,6 +62,8 @@ export function RequirementPage({ id }: { id: string }) {
           </section>
         )}
 
+        <Implementation req={req} />
+
         <section className="mt-10">
           <h2 className="font-serif text-lg font-semibold">
             Tests <span className="text-muted font-sans text-sm font-normal tabular-nums">{tests.length}</span>
@@ -83,6 +86,21 @@ export function RequirementPage({ id }: { id: string }) {
       </div>
 
       <aside className="space-y-6 text-sm lg:pt-2">
+        {index.trace?.implementation && (
+          <Facts title="Implementation">
+            <Link href={`/?implementation=${index.trace.implementation[req.id]}`} className="hover:underline">{implementationLabels[index.trace.implementation[req.id]]}</Link>
+          </Facts>
+        )}
+        {req.issues && req.issues.length > 0 && (
+          <Facts title="Issues">
+            <ul className="space-y-1">
+              {req.issues.map((issue) => {
+                const href = issueHref(issue, index.config?.issueUrl)
+                return <li key={issue} className="break-all">{href ? <a href={href} target="_blank" rel="noreferrer" className="text-accent underline underline-offset-2">{issue}</a> : issue}</li>
+              })}
+            </ul>
+          </Facts>
+        )}
         {index.trace && (
           <Facts title="Coverage">
             <Link href={`/?coverage=${index.trace.coverage[req.id]}`} className="hover:underline">{coverageLabels[index.trace.coverage[req.id]]}</Link>
@@ -138,6 +156,33 @@ function TestCard({ req, test }: { req: IndexedRequirement; test: TestDefinition
         <Link href={`${paths.editRequirement(req.id)}#tests`} className="text-muted hover:text-ink ml-auto inline-flex items-center gap-1 text-sm underline underline-offset-2"><Pencil {...smallIcon} />Edit tests</Link>
       </div>
     </li>
+  )
+}
+
+/**
+ * Where code names this requirement in an implementation annotation, when the server scanned the
+ * component checkouts. Implemented by is a different fact from tested by, so it has its own section.
+ */
+// SpecAI: UI-019
+export function Implementation({ req }: { req: IndexedRequirement }) {
+  const { index } = useSpec()
+  const places = index.trace?.implementations?.[req.id]
+  if (!places) return null
+  return (
+    <section className="mt-10">
+      <h2 className="font-serif text-lg font-semibold">
+        Implemented by <span className="text-muted font-sans text-sm font-normal tabular-nums">{places.length}</span>
+      </h2>
+      {places.length === 0 ? (
+        <p className={`mt-2 text-sm ${req.issues?.length ? 'text-muted' : 'text-warn'}`}>
+          No code names {req.id} yet{req.issues?.length ? '; it is planned in the issues listed.' : '.'} Add <code>SpecAI: {req.id}</code> in a comment above the code that implements it.
+        </p>
+      ) : (
+        <ul className="mt-2 space-y-1 text-sm">
+          {places.map((p) => <li key={`${p.file}:${p.line}`}><code className="break-all">{p.file}:{p.line}</code></li>)}
+        </ul>
+      )}
+    </section>
   )
 }
 

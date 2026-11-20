@@ -1,0 +1,47 @@
+specai: "0.2"
+id: CLI-019
+title: Implementation status
+status: proposed
+statement: >-
+  When `specai trace` runs, the tool shall report each [[requirement]] as implemented when an
+  [[implementation annotation]] in its components names it, planned when none does but it lists
+  `issues`, and not implemented otherwise, and shall warn about each approved requirement that is
+  not implemented.
+acceptance:
+  - With `--strict`, trace fails while an approved requirement is not implemented; a planned one does not fail it.
+  - Implementation status is reported, never written into spec files.
+components: [CLI]
+related: [CLI-008, STD-011]
+rationale: |
+  Planned work has an owner and a place to discuss it; a requirement with neither code nor an issue
+  has not been looked at. Warning rather than failing lets existing spec trees adopt annotations
+  gradually, and `--strict` lets CI enforce them once they have.
+tests:
+  - id: CLI-019-T1
+    title: Three states
+    status: proposed
+    level: unit
+    given:
+      - Requirements with an annotation, with only issues, with neither, and with both
+    when: The checkouts are traced
+    then:
+      - They are implemented, planned, not implemented and implemented
+  - id: CLI-019-T2
+    title: Warning lists approved requirements only
+    status: proposed
+    level: unit
+    given:
+      - An approved and a proposed requirement, both not implemented
+    when: '`specai trace` runs'
+    then:
+      - The warning lists the approved one only, and trace passes
+      - The summary counts the approved requirements implemented and planned
+  - id: CLI-019-T3
+    title: Strict fails on not implemented
+    status: proposed
+    level: unit
+    given:
+      - A covered, approved requirement
+    when: '`specai trace --strict` runs with no annotation, with issues, and with an annotation'
+    then:
+      - It fails only when there is neither an annotation nor issues
