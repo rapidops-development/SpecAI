@@ -68,8 +68,8 @@ specai trace path/to/specs --strict           # also fail unless every approved 
 specai trace path/to/specs --json             # machine-readable output
 ```
 
-Test code names the test definition it implements: `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit, or
-`it('[LOAN-042-T1] …')` in Vitest. Each test definition is implemented by exactly one test, and each
+Test code names the test definition it implements: `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit,
+`@pytest.mark.specai("LOAN-042-T1")` in pytest, or `it('[LOAN-042-T1] …')` in Vitest. Each test definition is implemented by exactly one test, and each
 test implements exactly one test definition; trace fails when test code breaks that rule or names an
 ID that does not exist, warns about links in a component the requirement does not list, and lists the
 tests that name no test definition. Each component's code is looked for at `<checkouts>/<path>`, and

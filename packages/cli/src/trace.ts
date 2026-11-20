@@ -4,13 +4,16 @@ import { dirname, join, relative, resolve, sep } from 'node:path'
 import { type Annotation, type BadAnnotation, findAnnotations } from './annotations.ts'
 import type { Requirement, RootConfig } from './model.ts'
 
+/** The test frameworks whose tests trace reads. */
+export type Framework = 'xunit' | 'vitest' | 'pytest'
+
 /** A place in test code that names a test definition ID. */
 export interface TestLink {
   testId: string
   /** Relative to the checkouts folder, with forward slashes. */
   file: string
   line: number
-  framework: 'xunit' | 'vitest'
+  framework: Framework
 }
 
 /** A test found in test code: an xUnit `[Fact]` or `[Theory]` method, or a Vitest `it` or `test` call. */
@@ -18,7 +21,7 @@ export interface FoundTest {
   /** Relative to the checkouts folder, with forward slashes. */
   file: string
   line: number
-  framework: 'xunit' | 'vitest'
+  framework: Framework
   /** The method name, or the Vitest test name. */
   name: string
 }
@@ -27,7 +30,7 @@ export interface FoundTest {
 export interface MultiLink {
   file: string
   line: number
-  framework: 'xunit' | 'vitest'
+  framework: Framework
   testIds: string[]
 }
 
@@ -108,6 +111,12 @@ const hasBracketedId = new RegExp(`\\[${testId}\\]`)
 // Vitest test calls: it(…), test(…), it.each(…)(…), it.only(…), test.skip(…) and so on.
 const vitestCallPattern = /(?<![\w$.])(?:it|test)((?:\s*\.\s*[A-Za-z]+)*)\s*([(`])/g
 const vitestFile = /\.(test|spec)\.[cm]?[jt]sx?$/
+// pytest's default test files: test_*.py or *_test.py.
+const pytestFile = /(?:^|\/)(?:test_[^/]*|[^/]*_test)\.py$/
+// pytest: @pytest.mark.specai("LOAN-042-T1"), or @mark.specai(...) after `from pytest import mark`.
+const pytestPattern = new RegExp(`@(?:pytest\\s*\\.\\s*)?mark\\s*\\.\\s*specai\\s*\\(\\s*["'](${testId})["']\\s*\\)`, 'g')
+// A def or class statement, with its indentation.
+const pythonDefinition = /^([ \t]*)(?:async[ \t]+)?(def|class)[ \t]+(\w+)/gm
 const skipped = new Set(['node_modules', '.git', 'bin', 'obj', 'dist', 'build', 'coverage', '.next'])
 // Files that can hold implementation annotations: not documentation, and not too large to be source.
 const documentation = /\.(md|mdx|markdown|txt)$/i
@@ -220,12 +229,13 @@ export function emptyScan(): ScanResult {
 /** Reads one file's text into a scan result. `file` is its path, with forward slashes; its name decides how it is read. */
 export function scanText(text: string, file: string, out: ScanResult): void {
   if (documentation.test(file) || text.includes('\0')) return
-  const framework = file.endsWith('.cs') ? 'xunit' : vitestFile.test(file) ? 'vitest' : undefined
+  const framework = file.endsWith('.cs') ? 'xunit' : vitestFile.test(file) ? 'vitest' : pytestFile.test(file) ? 'pytest' : undefined
   const lineAt = (index: number) => lineOf(text, index)
   if (framework === 'xunit') scanXunit(text, file, lineAt, out)
   else if (framework === 'vitest') scanVitest(text, file, lineAt, out)
+  else if (framework === 'pytest') scanPytest(text, file, lineAt, out)
   // Test files link to test definitions, not requirements, and often hold example annotations as data.
-  if (framework === 'vitest' || (framework === 'xunit' && new RegExp(xunitTestPattern.source).test(text))) return
+  if (framework === 'vitest' || framework === 'pytest' || (framework === 'xunit' && new RegExp(xunitTestPattern.source).test(text))) return
   const { annotations, bad } = findAnnotations(text, file)
   out.annotations.push(...annotations)
   out.badAnnotations.push(...bad)
@@ -309,6 +319,42 @@ function scanVitest(text: string, file: string, lineAt: (i: number) => number, o
     if (!/^,\s*(?:async\b|function\b|\(|\{|[\w$]+\s*=>)/.test(text.slice(j, j + 200))) continue
     if (hasBracketedId.test(name.body)) continue
     out.untagged.push({ file, line: lineAt(m.index), framework: 'vitest', name: name.body })
+  }
+}
+
+/**
+ * pytest: a test is a `test*` function at module level, or a `test*` method of a `Test*` class at
+ * module level, as pytest finds them by default. Its IDs are the `specai` markers in the decorators
+ * just above it. A marker above anything else, such as a class, still links but belongs to no test.
+ */
+// SpecAI: CLI-022
+function scanPytest(text: string, file: string, lineAt: (i: number) => number, out: ScanResult) {
+  const definitions = [...text.matchAll(pythonDefinition)].map((m) => ({
+    at: m.index + m[1].length,
+    indent: m[1].replace(/\t/g, '        ').length,
+    kind: m[2],
+    name: m[3],
+  }))
+  const ids = new Map<number, string[]>()
+  for (const m of text.matchAll(pytestPattern)) {
+    out.links.push({ testId: m[1], file, line: lineAt(m.index), framework: 'pytest' })
+    const next = definitions.find((d) => d.at > m.index)
+    if (next) ids.set(next.at, [...(ids.get(next.at) ?? []), m[1]])
+  }
+  const outer: (typeof definitions)[number][] = []
+  for (const d of definitions) {
+    while (outer.length > 0 && outer[outer.length - 1].indent >= d.indent) outer.pop()
+    const parent = outer[outer.length - 1]
+    outer.push(d)
+    const isTest =
+      d.kind === 'def' &&
+      /^test/.test(d.name) &&
+      (parent === undefined || (outer.length === 2 && parent.kind === 'class' && /^Test/.test(parent.name)))
+    if (!isTest) continue
+    const name = parent ? `${parent.name}::${d.name}` : d.name
+    const testIds = [...new Set(ids.get(d.at) ?? [])]
+    if (testIds.length > 1) out.multiple.push({ file, line: lineAt(d.at), framework: 'pytest', testIds })
+    if (testIds.length === 0) out.untagged.push({ file, line: lineAt(d.at), framework: 'pytest', name })
   }
 }
 

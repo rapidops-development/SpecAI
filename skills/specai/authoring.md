@@ -62,7 +62,7 @@ A test definition describes one check of its requirement, as prose a human revie
 the requirement it sits in.
 
 A requirement may have many test definitions; each test definition is implemented by exactly one test,
-and each test implements exactly one test definition. A parameterised test (`[Theory]`, `it.each`)
+and each test implements exactly one test definition. A parameterised test (`[Theory]`, `@pytest.mark.parametrize`, `it.each`)
 counts as one test. `<specai> trace` fails when test code breaks this.
 
 | Field | What to write |
@@ -80,7 +80,8 @@ counts as one test. `<specai> trace` fails when test code breaks this.
 - When a change must leave other behaviour as it is, that behaviour's own requirement and its tests
   already guard it. Link the requirement in `related`, and add a test definition there if it has none.
 - Test code that implements it names its ID: `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit;
-  `it('[LOAN-042-T1] …')` in Vitest, the ID in square brackets in the test name.
+  `@pytest.mark.specai("LOAN-042-T1")` in pytest; `it('[LOAN-042-T1] …')` in Vitest, the ID in
+  square brackets in the test name.
 - Split a test that checks two definitions into two tests. Shared setup through fixtures or helpers is
   fine.
 - Give a second test of the same case its own definition, or delete it as a true duplicate.

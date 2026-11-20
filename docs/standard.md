@@ -210,7 +210,8 @@ verifies no other. It is prose for a human to review, not executable code.
 
 **One test per test definition.** A requirement may have many test definitions; each test definition
 is implemented by exactly one test, and each test implements exactly one test definition. A
-parameterised test, such as an xUnit `[Theory]` or a Vitest `it.each`, counts as one test. Two tests
+parameterised test, such as an xUnit `[Theory]`, a Vitest `it.each` or a pytest
+`@pytest.mark.parametrize` test, counts as one test. Two tests
 of the same case are either two cases, each needing its own test definition, or a duplicate. Tests
 may share setup through fixtures or helpers.
 
@@ -229,6 +230,9 @@ Test code links back by naming the test-definition ID, once, in the one test tha
 
 - xUnit: `[Trait("SpecAI", "LOAN-001-T1")]`
 - Vitest: `it('[LOAN-001-T1] refuses a sixth loan', …)`
+- pytest: `@pytest.mark.specai("LOAN-001-T1")` on the test function. Register the marker once in the
+  project's pytest configuration, such as `markers = ["specai: SpecAI test definition ID"]` under
+  `[tool.pytest.ini_options]` in `pyproject.toml`, or pytest warns about an unknown marker.
 
 Do not record the test's name or file in `notes`: the tools work it out, and `specai validate` warns
 when notes appear to.
@@ -256,7 +260,8 @@ counts, so annotations work in any language and in configuration files.
 - A requirement may be implemented in many places, and one place may implement many requirements.
 - Spec files never record where code is; the tools work it out from the annotations, which move with
   the code.
-- Annotations in test files (`*.test.*`, `*.spec.*`, and `.cs` files holding xUnit tests) and in
+- Annotations in test files (`*.test.*`, `*.spec.*`, `test_*.py`, `*_test.py`, and `.cs` files
+  holding xUnit tests) and in
   documentation (`.md`, `.mdx`, `.txt`) are ignored: tests link to test definitions, and such files
   often show annotations as examples.
 
@@ -331,6 +336,8 @@ its summary; coverage is never written into spec files.
 Deprecated and removed test definitions are not counted. Test code links to a test definition by:
 
 - **xUnit:** a `[Trait("SpecAI", "<test ID>")]` attribute, in any `.cs` file
+- **pytest:** a `@pytest.mark.specai("<test ID>")` marker (or `@mark.specai(…)` after
+  `from pytest import mark`), in a `test_*.py` or `*_test.py` file
 - **Vitest:** the test ID in square brackets inside a string, such as `it('[LOAN-001-T1] …')`, in a
   `*.test.*` or `*.spec.*` file
 
@@ -343,7 +350,7 @@ all of them.
 |---|---|
 | test code naming an ID that no requirement has | error |
 | a test definition named by more than one test | error |
-| one test naming more than one test definition: several `Trait("SpecAI", …)` attributes on one xUnit method, or several bracketed IDs in one Vitest test name | error |
+| one test naming more than one test definition: several `Trait("SpecAI", …)` attributes on one xUnit method, several `specai` markers on one pytest test, or several bracketed IDs in one Vitest test name | error |
 | test code naming a test definition in a component its requirement does not list, so it is not counted | warning |
 | tests naming no test definition, listed per component | information |
 
@@ -353,9 +360,11 @@ all of them.
 | an approved requirement that is not implemented: no annotation and no `issues` | warning |
 
 Errors make `specai trace` fail. It finds tests by pattern matching, not by parsing: an xUnit test is a
-method with a `[Fact]` or `[Theory]` attribute, and a Vitest test is an `it` or `test` call (with any
-of `.each`, `.only`, `.skip` and the like) whose first argument is a string literal followed by the
-test function. The list of untagged tests is a guide, not an exact count.
+method with a `[Fact]` or `[Theory]` attribute; a pytest test is a `test*` function at module level or
+a `test*` method of a module-level `Test*` class, as pytest finds them by default; and a Vitest test is
+an `it` or `test` call (with any of `.each`, `.only`, `.skip` and the like) whose first argument is a
+string literal followed by the test function. The list of untagged tests is a guide, not an exact
+count.
 
 ## Implementation status
 

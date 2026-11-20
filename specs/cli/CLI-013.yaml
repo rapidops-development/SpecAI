@@ -9,6 +9,7 @@ rationale: |
   Linking a test suite that predates the specs starts from the tests nobody has tagged yet.
 acceptance:
   - An xUnit test is a method with a `[Fact]` or `[Theory]` attribute.
+  - A pytest test is a `test*` function or a `test*` method of a `Test*` class, as pytest finds them by default; see [[CLI-022]].
   - A Vitest test is an `it` or `test` call, including `.each`, `.only` and `.skip`, whose first argument is a string literal followed by a callback.
   - The list is information; it never makes `specai trace` fail.
 notes: |
