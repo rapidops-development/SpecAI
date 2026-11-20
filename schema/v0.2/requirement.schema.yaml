@@ -1,0 +1,59 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: urn:specai:v0.2:requirement
+title: SpecAI requirement (<PREFIX>-NNN.yaml)
+type: object
+required: [specai, id, title, status, statement]
+properties:
+  specai: { $ref: "urn:specai:v0.2:common#/$defs/version" }
+  id: { $ref: "urn:specai:v0.2:common#/$defs/requirementId" }
+  title: { $ref: "urn:specai:v0.2:common#/$defs/text" }
+  status: { $ref: "urn:specai:v0.2:common#/$defs/status" }
+  statement:
+    $ref: "urn:specai:v0.2:common#/$defs/text"
+    description: One testable sentence, ideally in an EARS pattern.
+  rationale: { $ref: "urn:specai:v0.2:common#/$defs/markdown" }
+  acceptance: { $ref: "urn:specai:v0.2:common#/$defs/textList" }
+  notes: { $ref: "urn:specai:v0.2:common#/$defs/markdown" }
+  tags:
+    type: array
+    items: { $ref: "urn:specai:v0.2:common#/$defs/slug" }
+    uniqueItems: true
+  components:
+    description: Names from the components list in specai.yaml.
+    type: array
+    items: { type: string, minLength: 1 }
+    uniqueItems: true
+  parent: { $ref: "urn:specai:v0.2:common#/$defs/requirementId" }
+  related:
+    type: array
+    items: { $ref: "urn:specai:v0.2:common#/$defs/requirementId" }
+    uniqueItems: true
+  issues:
+    description: Issues tracking work still to do to build the requirement. Remove an issue once it is closed.
+    type: array
+    items: { $ref: "urn:specai:v0.2:common#/$defs/issue" }
+    uniqueItems: true
+  tests:
+    type: array
+    items: { $ref: "#/$defs/test" }
+patternProperties:
+  "^x-": { $ref: "urn:specai:v0.2:common#/$defs/extension" }
+additionalProperties: false
+$defs:
+  test:
+    title: Test definition
+    description: Describes what a test checks. Verifies exactly the requirement it sits in.
+    type: object
+    required: [id, title, status, level, when, then]
+    properties:
+      id: { $ref: "urn:specai:v0.2:common#/$defs/testId" }
+      title: { $ref: "urn:specai:v0.2:common#/$defs/text" }
+      status: { $ref: "urn:specai:v0.2:common#/$defs/status" }
+      level: { enum: [unit, integration, e2e, manual] }
+      given: { $ref: "urn:specai:v0.2:common#/$defs/textList" }
+      when: { $ref: "urn:specai:v0.2:common#/$defs/text" }
+      then: { $ref: "urn:specai:v0.2:common#/$defs/textList" }
+      notes: { $ref: "urn:specai:v0.2:common#/$defs/markdown" }
+    patternProperties:
+      "^x-": { $ref: "urn:specai:v0.2:common#/$defs/extension" }
+    additionalProperties: false

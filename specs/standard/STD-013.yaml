@@ -1,0 +1,24 @@
+specai: "0.2"
+id: STD-013
+title: Implementation annotations
+status: proposed
+statement: >-
+  Code that implements a [[requirement]] shall name the requirement's ID in an
+  [[implementation annotation]] directly above the declaration that implements it, or at the top of
+  the file when the whole file implements it.
+acceptance:
+  - 'An annotation is a comment whose text starts with `SpecAI:` followed by one or more requirement IDs separated by commas, such as `// SpecAI: LOAN-001, LOAN-002`.'
+  - Any comment syntax counts, so annotations work in any language and in configuration files.
+  - Annotations name requirement IDs, never test definition IDs; tests keep linking to test definitions.
+  - A requirement may be implemented in many places, and one place may implement many requirements.
+components: [CLI]
+related: [STD-010]
+rationale: |
+  Specs that point at their code let people and agents go from a requirement to what builds it,
+  find requirements nothing builds, and find the requirements a code change touches. Paths written
+  into spec files go stale whenever code moves; annotations move with the code, the same way test
+  links do. "Implemented by" and "tested by" are different facts, so annotations do not replace
+  test links.
+notes: |
+  `specai trace` will find annotations and report each approved requirement as implemented,
+  planned (it has `issues`) or unimplemented; that support is not built yet.

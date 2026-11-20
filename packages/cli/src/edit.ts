@@ -3,6 +3,7 @@ import { join, normalize } from 'node:path'
 import { Document, isMap, isScalar, isSeq, type Node, parse, parseDocument, Scalar, visit, type YAMLMap, type YAMLSeq } from 'yaml'
 import type { Diagnostic } from './diagnostic.ts'
 import { type Area, type GlossaryTerm, type Requirement, requirementText, type RootConfig, testText } from './model.ts'
+import { versionAt } from './schema.ts'
 import { classify, contentHash, loadSpecTree, parseSpecYaml } from './tree.ts'
 import { validateTree } from './validate.ts'
 
@@ -31,7 +32,7 @@ export interface SaveResult {
 }
 
 // Field order for keys added to a file, so new fields land where a person would put them.
-const requirementOrder = ['specai', 'id', 'title', 'status', 'statement', 'rationale', 'acceptance', 'notes', 'tags', 'components', 'parent', 'related', 'tests']
+const requirementOrder = ['specai', 'id', 'title', 'status', 'statement', 'rationale', 'acceptance', 'notes', 'tags', 'components', 'parent', 'related', 'issues', 'tests']
 const testOrder = ['id', 'title', 'status', 'level', 'given', 'when', 'then', 'notes']
 const termOrder = ['specai', 'term', 'aliases', 'definition', 'avoid']
 // Keep long lines whole and write flow lists as [a, b], matching hand-written files.
@@ -72,7 +73,7 @@ export function saveRequirement(root: string, id: string, data: Requirement, bas
 export function createRequirement(root: string, folder: string, data: Omit<Requirement, 'id' | 'specai'>): SaveResult & { id: string } {
   const prefix = areaPrefix(root, folder)
   const id = nextRequirementId(root, folder, prefix)
-  const requirement = { specai: '0.1', id, ...data, tests: data.tests?.map((t, i) => ({ ...t, id: `${id}-T${i + 1}` })) }
+  const requirement = { specai: versionAt(root), id, ...data, tests: data.tests?.map((t, i) => ({ ...t, id: `${id}-T${i + 1}` })) }
   const doc = newDocument(stripUndefined(requirement), requirementOrder)
   return { ...write(root, `${folder}/${id}.yaml`, doc.toString(stringifyOptions), [], { create: true }), id }
 }
@@ -89,7 +90,7 @@ export function saveTerm(root: string, slug: string, data: GlossaryTerm, baseHas
 export function createTerm(root: string, data: Omit<GlossaryTerm, 'specai'>): SaveResult & { slug: string } {
   const slug = slugify(data.term)
   if (!slug) throw new EditError(400, 'a term needs at least one letter or digit')
-  const doc = newDocument(stripUndefined({ specai: '0.1', ...data }), termOrder)
+  const doc = newDocument(stripUndefined({ specai: versionAt(root), ...data }), termOrder)
   return { ...write(root, `glossary/${slug}.yaml`, doc.toString(stringifyOptions), [], { create: true }), slug }
 }
 

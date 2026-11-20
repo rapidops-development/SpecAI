@@ -11,6 +11,32 @@ describe('validate', () => {
     expect(check()).toEqual([])
   })
 
+  describe('versions', () => {
+    const allFiles = ['specai.yaml', 'loans/area.yaml', 'loans/LOAN-001.yaml', 'loans/LOAN-002.yaml', 'glossary/member.yaml']
+    const toVersion = (version: string) =>
+      Object.assign({}, ...allFiles.map((path) => edit(path, 'specai: "0.1"', `specai: "${version}"`)))
+
+    it('[CLI-015-T1] checks a tree against the schema of the version it declares', () => {
+      const issues = edit('loans/LOAN-001.yaml', 'components: [Library.API]', 'components: [Library.API]\nissues: [acme/library#12]')
+      expect(check(issues)[0]).toMatchObject({ rule: 'schema', file: 'loans/LOAN-001.yaml', field: '/issues', message: 'unknown field "issues"' })
+      const upgraded = toVersion('0.2')
+      expect(check(upgraded)).toEqual([])
+      expect(check({ ...upgraded, 'loans/LOAN-001.yaml': upgraded['loans/LOAN-001.yaml'].replace('components: [Library.API]', 'components: [Library.API]\nissues: [acme/library#12]') })).toEqual([])
+    })
+
+    it('[CLI-015-T2] reports a version the tool does not support', () => {
+      expect(check(toVersion('9.9'))).toEqual([
+        { severity: 'error', rule: 'version', file: 'specai.yaml', line: 1, field: '/specai', message: 'version "9.9" is not supported; use one of "0.1", "0.2"' },
+      ])
+    })
+
+    it('[STD-012-T1] rejects a file written for another version than its tree', () => {
+      expect(messages(edit('specai.yaml', 'specai: "0.1"', 'specai: "0.2"'))).toContain(
+        'error version loans/LOAN-001.yaml: written for version "0.1", but the spec tree is version "0.2"; every file uses the version in specai.yaml',
+      )
+    })
+  })
+
   describe('schema', () => {
     it('[CLI-001-T1] reports each failure with file, line, ID and field', () => {
       const [d] = check(edit('loans/LOAN-001.yaml', 'status: proposed\nstatement', 'status: done\nstatement'))

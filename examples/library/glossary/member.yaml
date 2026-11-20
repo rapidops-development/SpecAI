@@ -1,4 +1,4 @@
-specai: "0.1"
+specai: "0.2"
 term: Member
 aliases: [members]
 definition: A person registered with the library who may borrow [[copy|copies]].

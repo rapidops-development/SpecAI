@@ -3,7 +3,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { extname, join, normalize, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRequirement, createTerm, EditError, readSpecFile, saveRawFile, saveRequirement, saveTerm } from './edit.ts'
-import { schemaDocuments } from './schema.ts'
+import { schemaDocuments, versionAt } from './schema.ts'
 import { buildIndex, TraceCache } from './spec-index.ts'
 
 export const defaultUiDir = fileURLToPath(new URL('../../ui/dist/', import.meta.url))
@@ -62,7 +62,7 @@ export function createSpecServer({ root, uiDir = defaultUiDir, debounceMs = 100,
         sendJson(res, error.status, { error: error.message })
       }
     } else if (url.pathname === '/api/schema') {
-      sendJson(res, 200, schemaDocuments())
+      sendJson(res, 200, schemaDocuments(versionAt(root)))
     } else if (url.pathname === '/api/index') {
       res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' })
       res.end(JSON.stringify(buildIndex(root, { checkouts, traceCache })))

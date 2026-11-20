@@ -1,4 +1,4 @@
-specai: "0.1"
+specai: "0.2"
 term: Glossary term
 aliases: [glossary terms]
 definition: One defined word or phrase, in its own file in `glossary/`, that text fields link to.

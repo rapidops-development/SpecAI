@@ -1,6 +1,6 @@
 # Authoring SpecAI specs
 
-The rules for writing spec files, for SpecAI version 0.1. `<specai> validate` checks the mechanical
+The rules for writing spec files, for SpecAI version 0.2. `<specai> validate` checks the mechanical
 ones; the rest are judgement, and the human reviews them.
 
 ## Layout and IDs
@@ -111,7 +111,7 @@ The file is named by a slug of the term: `Overdue loan notice` → `glossary/ove
 
 ## YAML
 
-- Start every file with `specai: "0.1"`, quoted.
+- Start every file with the version its `specai.yaml` declares, quoted, such as `specai: "0.2"`.
 - Write text containing `: ` or starting with a backtick, quote or bracket as a block scalar:
 
   ```yaml

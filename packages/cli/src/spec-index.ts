@@ -4,6 +4,7 @@ import { findLinks } from './links.ts'
 import { type Area, type GlossaryTerm, type Requirement, type RootConfig, requirementIdPattern, requirementText, testText } from './model.ts'
 import { contentHash, fileStem, loadSpecTree, type SpecFile } from './tree.ts'
 import { type TraceResult, trace } from './trace.ts'
+import { treeVersion } from './schema.ts'
 import { passesSchema, validateTree } from './validate.ts'
 
 export interface IndexedArea extends Area {
@@ -73,7 +74,8 @@ export class TraceCache {
 export function buildIndex(root: string, options: IndexOptions = {}): SpecIndex {
   const tree = loadSpecTree(root)
   const diagnostics = validateTree(tree)
-  const valid = tree.files.filter(passesSchema)
+  const version = treeVersion(tree.files)
+  const valid = version === undefined ? [] : tree.files.filter((file) => passesSchema(file, version))
   const config = (valid.find((f) => f.kind === 'specai')?.data as RootConfig | undefined) ?? null
   const order = new Map(config?.areas.map((folder, i) => [folder, i]))
   const folderOf = (file: SpecFile) => file.path.split('/')[0]

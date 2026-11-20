@@ -1,0 +1,44 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: urn:specai:v0.2:specai
+title: SpecAI root config (specai.yaml)
+type: object
+required: [specai, areas]
+properties:
+  specai: { $ref: "urn:specai:v0.2:common#/$defs/version" }
+  name:
+    $ref: "urn:specai:v0.2:common#/$defs/text"
+    description: The spec tree's display name, such as the product it specifies.
+  areas:
+    description: The area folders in this spec tree, in display order. Each folder holds an area.yaml.
+    type: array
+    items: { $ref: "urn:specai:v0.2:common#/$defs/slug" }
+    minItems: 1
+    uniqueItems: true
+  issueUrl:
+    description: >-
+      Template that turns owner/repo#number issue shorthand into a link, using {owner}, {repo} and
+      {number}. Defaults to https://github.com/{owner}/{repo}/issues/{number}.
+    type: string
+    pattern: "^https?://.*\\{number\\}"
+  components:
+    description: The components requirements may name. trace looks for a component's code at <checkouts>/<path>.
+    type: array
+    uniqueItems: true
+    items:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        path:
+          description: Path to the component's code, relative to the checkouts folder. Defaults to the name.
+          type: string
+          minLength: 1
+        description: { $ref: "urn:specai:v0.2:common#/$defs/text" }
+      patternProperties:
+        "^x-": { $ref: "urn:specai:v0.2:common#/$defs/extension" }
+      additionalProperties: false
+patternProperties:
+  "^x-": { $ref: "urn:specai:v0.2:common#/$defs/extension" }
+additionalProperties: false

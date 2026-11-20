@@ -1,4 +1,4 @@
-specai: "0.1"
+specai: "0.2"
 term: Area
 aliases: [areas]
 definition: A folder of requirements with its own ID prefix, described by an `area.yaml`.

@@ -1,0 +1,6 @@
+specai: "0.2"
+term: Implementation annotation
+aliases: [implementation annotations, annotation, annotations]
+definition: >-
+  A comment in code, such as `// SpecAI: LOAN-001`, naming the [[requirement|requirements]] that the
+  declaration below it, or the whole file when it is at the top, implements.

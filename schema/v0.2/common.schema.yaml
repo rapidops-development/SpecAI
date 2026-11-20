@@ -1,0 +1,46 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: urn:specai:v0.2:common
+title: SpecAI shared definitions
+$defs:
+  version:
+    description: The version of the SpecAI standard the file is written for. Quote it so YAML reads it as a string.
+    type: string
+    const: "0.2"
+  status:
+    description: Lifecycle status. Agents only set draft or proposed; only a human sets approved.
+    enum: [draft, proposed, approved, deprecated, removed]
+  prefix:
+    description: An area prefix, such as LOAN.
+    type: string
+    pattern: "^[A-Z][A-Z0-9]{1,7}$"
+  requirementId:
+    description: A requirement ID, <PREFIX>-NNN, such as LOAN-042.
+    type: string
+    pattern: "^[A-Z][A-Z0-9]{1,7}-[0-9]{3,}$"
+  testId:
+    description: A test definition ID, <requirement ID>-Tn, such as LOAN-042-T1.
+    type: string
+    pattern: "^[A-Z][A-Z0-9]{1,7}-[0-9]{3,}-T[1-9][0-9]*$"
+  slug:
+    description: Lowercase words joined by hyphens, such as due-date.
+    type: string
+    pattern: "^[a-z0-9]+(-[a-z0-9]+)*$"
+  issue:
+    description: >-
+      An issue tracking work, as owner/repo#number shorthand (such as acme/library#12) or a URL.
+    type: string
+    pattern: "^([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+#[0-9]+|https?://[^\\s]+)$"
+  text:
+    description: Plain text that may contain [[links]]. No Markdown.
+    type: string
+    minLength: 1
+  markdown:
+    description: Markdown that may contain [[links]].
+    type: string
+    minLength: 1
+  textList:
+    type: array
+    items: { $ref: "#/$defs/text" }
+    minItems: 1
+  extension:
+    description: Tool- or organisation-specific data. Keys must start with x-.

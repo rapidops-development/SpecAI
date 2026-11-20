@@ -8,6 +8,7 @@ import { buildIndex } from './spec-index.ts'
 import { defaultCheckouts } from './trace.ts'
 import { formatText, formatTrace } from './report.ts'
 import { loadSpecTree } from './tree.ts'
+import { UpgradeError, upgradeTree } from './upgrade.ts'
 import { validateTree } from './validate.ts'
 
 const usage = `Usage: specai <command> [options]
@@ -24,6 +25,8 @@ Commands:
     --json         Print the result as JSON
                    Fails on errors: unknown IDs, a test definition named by
                    more than one test, or a test naming more than one
+  upgrade [dir]    Rewrite a spec tree for the latest version of the standard,
+                   changing only each file's version line
   serve [dir]      Browse a spec tree in the web UI (default: current folder)
     --port <n>     Port to listen on (default: 4321)
     --checkouts <dir>  As for trace, to show coverage
@@ -34,6 +37,7 @@ export function run(argv: string[]): number {
   if (command === 'validate') return validate(rest)
   if (command === 'serve') return serve(rest)
   if (command === 'trace') return traceCommand(rest)
+  if (command === 'upgrade') return upgrade(rest)
   process.stdout.write(usage)
   return command === undefined || command === '--help' || command === '-h' ? 0 : 2
 }
@@ -58,6 +62,29 @@ function validate(argv: string[]): number {
   )
   const failing = diagnostics.filter((d) => d.severity === 'error' || values.strict)
   return failing.length > 0 ? 1 : 0
+}
+
+function upgrade(argv: string[]): number {
+  const { positionals } = parseArgs({ args: argv, allowPositionals: true, options: {} })
+  const dir = positionals[0] ?? '.'
+  const root = resolve(dir)
+  if (!existsSync(root)) {
+    process.stderr.write(`specai: ${dir} does not exist\n`)
+    return 2
+  }
+  try {
+    const { from, to, changed } = upgradeTree(root)
+    process.stdout.write(
+      changed.length === 0
+        ? `${dir} is already at version ${to}\n`
+        : `Upgraded ${changed.length} file${changed.length === 1 ? '' : 's'} in ${dir} from version ${from} to ${to}; run specai validate to check them\n`,
+    )
+    return 0
+  } catch (error) {
+    if (!(error instanceof UpgradeError)) throw error
+    process.stderr.write(`specai: ${error.message}\n`)
+    return 2
+  }
 }
 
 function serve(argv: string[]): number {

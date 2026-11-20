@@ -9,7 +9,7 @@ easy-to-read form for searching, grouping, filtering and editing.
 - [The standard](docs/standard.md)
 - [Writing specs, for agents and people](skills/specai/authoring.md), and the [`specai` skill](skills/specai/SKILL.md)
 - [Using SpecAI with AI agents](#using-specai-with-ai-agents)
-- [Schema](schema/v0.1/)
+- [Schema](schema/v0.2/)
 - [Example spec tree](examples/library/)
 - [SpecAI's own specs](specs/)
 
@@ -74,6 +74,15 @@ ID that does not exist, warns about links in a component the requirement does no
 tests that name no test definition. Each component's code is looked for at `<checkouts>/<path>`, and
 `--checkouts` defaults to the folder holding the spec tree's git repo, which suits repos cloned side
 by side. `specai serve` takes the same option and shows coverage in the UI.
+
+### Upgrade to a new version of the standard
+
+```sh
+specai upgrade path/to/specs                  # rewrite every file for the latest version
+```
+
+Each version so far only adds optional fields, so an upgrade changes nothing but each file's version
+line. Run `specai validate` afterwards.
 
 ### Browse specs in the web UI
 

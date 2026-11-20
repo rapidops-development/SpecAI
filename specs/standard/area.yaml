@@ -1,4 +1,4 @@
-specai: "0.1"
+specai: "0.2"
 prefix: STD
 name: Standard
 description: The file format itself, as defined by the schema.

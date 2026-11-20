@@ -4,6 +4,8 @@ export interface RootConfig {
   specai: string
   name?: string
   areas: string[]
+  /** Turns owner/repo#number issue shorthand into a link, using {owner}, {repo} and {number}. Since 0.2. */
+  issueUrl?: string
   components?: { name: string; path?: string; description?: string }[]
 }
 
@@ -39,6 +41,8 @@ export interface Requirement {
   components?: string[]
   parent?: string
   related?: string[]
+  /** Issues tracking work still to do to build the requirement: owner/repo#number or a URL. Since 0.2. */
+  issues?: string[]
   tests?: TestDefinition[]
 }
 

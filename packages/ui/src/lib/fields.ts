@@ -45,6 +45,7 @@ const labels: Record<string, string> = {
   components: 'Components',
   parent: 'Refines',
   related: 'Related requirements',
+  issues: 'Issues',
   tests: 'Tests',
   level: 'Level',
   given: 'Given',
@@ -66,12 +67,15 @@ const help: Record<string, string> = {
   rationale: 'Why this requirement exists. Markdown.',
   tags: 'Lowercase words joined by hyphens.',
   parent: 'The requirement this one refines.',
+  issues: 'Issues tracking work still to do, as owner/repo#number or a link. Remove one once it is closed.',
   aliases: 'Links may use any of these names.',
   avoid: 'The validator warns when these words appear in requirements or tests.',
 }
 
 export function formFields(schemas: Record<string, Schema>, kind: SchemaKind): Field[] {
-  const root = kind === 'test' ? schemas['urn:specai:v0.1:requirement'].$defs!.test : schemas[`urn:specai:v0.1:${kind}`]
+  // The served schemas are the spec tree's version, so look them up by kind whatever the version.
+  const byKind = (name: string) => Object.entries(schemas).find(([id]) => id.endsWith(`:${name}`))![1]
+  const root = kind === 'test' ? byKind('requirement').$defs!.test : byKind(kind)
   const required = new Set(root.required ?? [])
   return Object.entries(root.properties ?? {})
     .filter(([key]) => !hidden.has(key))

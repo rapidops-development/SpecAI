@@ -11,13 +11,27 @@ import {
   requirementText,
   testText,
 } from './model.ts'
-import { describeError, validators } from './schema.ts'
+import { describeError, supportedVersions, treeVersion, validators } from './schema.ts'
 import { fileStem, lineOf, type SpecFile, type SpecTree } from './tree.ts'
 
 // Runs every check on a loaded spec tree. Files that fail the schema skip the later checks.
 export function validateTree(tree: SpecTree): Diagnostic[] {
   const out: Diagnostic[] = [...tree.diagnostics]
-  const valid = tree.files.filter((file) => checkSchema(file, out))
+  const version = treeVersion(tree.files)
+  if (version === undefined) {
+    const root = tree.files.find((f) => f.kind === 'specai')!
+    const declared = JSON.stringify((root.data as { specai?: unknown } | null)?.specai ?? null)
+    out.push({
+      severity: 'error',
+      rule: 'version',
+      file: root.path,
+      line: lineOf(root, '/specai'),
+      field: '/specai',
+      message: `version ${declared} is not supported; use one of ${supportedVersions.map((v) => `"${v}"`).join(', ')}`,
+    })
+    return out
+  }
+  const valid = tree.files.filter((file) => checkVersion(file, version, out) && checkSchema(file, version, out))
   const root = valid.find((f) => f.kind === 'specai')
   if (!tree.files.some((f) => f.kind === 'specai')) {
     out.push({ severity: 'error', rule: 'layout', file: 'specai.yaml', message: 'missing root specai.yaml' })
@@ -35,13 +49,28 @@ export function validateTree(tree: SpecTree): Diagnostic[] {
   return out.sort((a, b) => a.file.localeCompare(b.file) || (a.line ?? 0) - (b.line ?? 0))
 }
 
-/** Whether a file passes the schema for its kind. */
-export function passesSchema(file: SpecFile): boolean {
-  return validators()[file.kind](file.data)
+/** Whether a file passes the schema for its kind, in the given version of the standard. */
+export function passesSchema(file: SpecFile, version: string): boolean {
+  return validators(version)[file.kind](file.data)
 }
 
-function checkSchema(file: SpecFile, out: Diagnostic[]): boolean {
-  const validate = validators()[file.kind]
+/** A file written for another version than its tree's is reported once, rather than as a schema failure. */
+function checkVersion(file: SpecFile, version: string, out: Diagnostic[]): boolean {
+  const declared = (file.data as { specai?: unknown } | null)?.specai
+  if (typeof declared !== 'string' || declared === version) return true
+  out.push({
+    severity: 'error',
+    rule: 'version',
+    file: file.path,
+    line: lineOf(file, '/specai'),
+    field: '/specai',
+    message: `written for version "${declared}", but the spec tree is version "${version}"; every file uses the version in specai.yaml`,
+  })
+  return false
+}
+
+function checkSchema(file: SpecFile, version: string, out: Diagnostic[]): boolean {
+  const validate = validators(version)[file.kind]
   if (validate(file.data)) return true
   const id = (file.data as { id?: unknown })?.id
   for (const error of validate.errors ?? []) {
