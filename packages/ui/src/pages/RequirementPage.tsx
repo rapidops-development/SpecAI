@@ -1,4 +1,4 @@
-import { Pencil } from 'lucide-react'
+import { OctagonAlert, Pencil } from 'lucide-react'
 import { Markdown } from '../components/Markdown.tsx'
 import { PageLinks } from '../components/PageLinks.tsx'
 import { ProblemList } from '../components/Problems.tsx'
@@ -141,8 +141,11 @@ function TestCard({ req, test }: { req: IndexedRequirement; test: TestDefinition
   )
 }
 
-/** Where test code names this test definition, when the server scanned the component checkouts. */
-function TestCode({ testId }: { testId: string }) {
+/**
+ * Where test code names this test definition, when the server scanned the component checkouts.
+ * Flags a test definition named by more than one test, since each needs exactly one.
+ */
+export function TestCode({ testId }: { testId: string }) {
   const { index } = useSpec()
   if (!index.trace) return null
   const links = index.trace.links[testId] ?? []
@@ -150,15 +153,22 @@ function TestCode({ testId }: { testId: string }) {
     return <p className="text-warn mt-3 text-sm">No test code names {testId} yet.</p>
   }
   return (
-    <p className="text-muted mt-3 text-sm">
-      In code at{' '}
-      {links.map((l, i) => (
-        <span key={`${l.file}:${l.line}`}>
-          {i > 0 && ', '}
-          <code className="inline break-all">{l.file}:{l.line}</code>
-        </span>
-      ))}
-    </p>
+    <>
+      <p className="text-muted mt-3 text-sm">
+        In code at{' '}
+        {links.map((l, i) => (
+          <span key={`${l.file}:${l.line}`}>
+            {i > 0 && ', '}
+            <code className="inline break-all">{l.file}:{l.line}</code>
+          </span>
+        ))}
+      </p>
+      {links.length > 1 && (
+        <p className="text-danger mt-1 inline-flex items-center gap-1.5 text-sm">
+          <OctagonAlert {...smallIcon} />Named by {links.length} tests; each test definition needs exactly one.
+        </p>
+      )}
+    </>
   )
 }
 
