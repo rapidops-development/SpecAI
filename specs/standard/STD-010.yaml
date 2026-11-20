@@ -5,7 +5,7 @@ status: proposed
 statement: Test code shall link each [[test definition]] to exactly one test, and each test to exactly one test definition.
 acceptance:
   - A [[requirement]] may have many test definitions.
-  - A parameterised test, such as an xUnit `[Theory]` or a Vitest `it.each`, counts as one test.
+  - A parameterised test, such as an xUnit `[Theory]`, a Vitest `it.each` or a pytest `@pytest.mark.parametrize` test, counts as one test.
 components: [CLI]
 related: [STD-005]
 rationale: |

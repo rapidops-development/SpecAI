@@ -10,7 +10,8 @@ parent: STD-010
 notes: |
   The link breaks one to one in two directions: more than one test names the same test definition
   ID, or one test names more than one ID. An xUnit test is a method: several `Trait("SpecAI", ...)`
-  attributes on one method name several IDs. A Vitest test is a string: several IDs in square
+  attributes on one method name several IDs. A pytest test is a function: several `specai` markers
+  on one function name several IDs ([[CLI-022]]). A Vitest test is a string: several IDs in square
   brackets in one test name.
 tests:
   - id: CLI-010-T1

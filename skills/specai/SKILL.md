@@ -45,8 +45,10 @@ run `npm ci` once in the SpecAI checkout.
 
 4. **Implement.** Change the code and write the tests.
    - Write exactly one test per test definition, and name exactly one ID in each test:
-     `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit, `it('[LOAN-042-T1] …')` in Vitest. A parameterised
-     test (`[Theory]`, `it.each`) counts as one. Split a test that checks two definitions; share setup
+     `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit, `@pytest.mark.specai("LOAN-042-T1")` in pytest,
+     `it('[LOAN-042-T1] …')` in Vitest. A parameterised test (`[Theory]`, `@pytest.mark.parametrize`,
+     `it.each`) counts as one. In a Python project, register the `specai` marker in its pytest
+     configuration if it is not there yet. Split a test that checks two definitions; share setup
      through fixtures or helpers.
    - Annotate the code that implements each requirement with a comment naming the requirement's ID,
      directly above the declaration that carries the behaviour: `// SpecAI: LOAN-042`, or

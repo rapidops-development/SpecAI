@@ -1,0 +1,47 @@
+specai: "0.2"
+id: CLI-022
+title: Trace pytest markers
+status: proposed
+statement: >-
+  When `specai trace` runs, the tool shall find [[test definition]] IDs in pytest
+  `@pytest.mark.specai("<ID>")` markers in each [[component]]'s pytest test files, and link each to
+  the test the marker decorates.
+acceptance:
+  - Test files, functions and classes are the ones pytest finds by default; `test_*.py` or `*_test.py` files, `test*` functions at module level, and `test*` methods of module-level `Test*` classes.
+  - A `@pytest.mark.parametrize` test counts as one test.
+  - pytest tests follow the same one-to-one, untagged-test and component rules as xUnit and Vitest tests.
+  - Implementation annotations in pytest test files are ignored.
+components: [CLI]
+related: [CLI-007, CLI-010, CLI-013, STD-010]
+rationale: |
+  Python backends need the same link from tests to test definitions as .NET and TypeScript code. A
+  marker sits on the test as data, like an xUnit trait, and survives renames; pytest needs it
+  registered once in the project's configuration.
+tests:
+  - id: CLI-022-T1
+    title: Markers on functions and methods
+    status: proposed
+    level: unit
+    given:
+      - A pytest file with a marked test function and a marked, parametrised test method in a `Test*` class
+    when: The checkouts are traced
+    then:
+      - Both test definitions are linked, with file and line
+  - id: CLI-022-T2
+    title: Untagged tests as pytest finds them
+    status: proposed
+    level: unit
+    given:
+      - Unmarked test functions and methods, a nested function, a helper, and a `test*` method of a class not named `Test*`
+    when: The checkouts are traced
+    then:
+      - Only the unmarked test function and the unmarked `Test*` method are listed as untagged
+  - id: CLI-022-T3
+    title: Two markers on one test
+    status: proposed
+    level: unit
+    given:
+      - A test function with two specai markers
+    when: The checkouts are traced
+    then:
+      - It is reported as a test naming more than one test definition
