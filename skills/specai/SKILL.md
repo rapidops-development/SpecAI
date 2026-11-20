@@ -41,20 +41,43 @@ run `npm ci` once in the SpecAI checkout.
 3. **Validate.** Run `<specai> validate <spec tree>`. Done at 0 errors. Fix warnings about avoided
    words by using the glossary term they name.
 
-4. **Implement.** Change the code and write the tests. Each test that implements a test definition
-   names its ID: `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit, `it('[LOAN-042-T1] …')` in Vitest. Done
-   when the tests pass.
+4. **Implement.** Change the code and write the tests. Write exactly one test per test definition,
+   and name exactly one ID in each test: `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit,
+   `it('[LOAN-042-T1] …')` in Vitest. A parameterised test (`[Theory]`, `it.each`) counts as one.
+   Split a test that checks two definitions; share setup through fixtures or helpers. Done when the
+   tests pass.
 
 5. **Trace.** Run `<specai> trace <spec tree>`. Done when every test definition you added or changed
-   shows as linked, and no unknown IDs are reported. Trace finds each component's code at
-   `<checkouts>/<path from specai.yaml>`; when it reports a missing checkout, such as when you work in
-   a worktree or a renamed folder, make a folder of links named as `specai.yaml` expects and pass it
-   with `--checkouts`.
+   shows as linked, and trace reports no errors and no links outside the requirement's components.
+   Trace finds each component's code at `<checkouts>/<path from specai.yaml>`; when it reports a
+   missing checkout, such as when you work in a worktree or a renamed folder, make a folder of links
+   named as `specai.yaml` expects and pass it with `--checkouts`.
 
 6. **Hand off.** In the pull request for the specs, list each requirement and test definition ID you
    proposed, added or deprecated, with one line on why. The human approves them in the SpecAI UI or by
    editing the files. When the spec tree lives in another repo than the code, open a pull request
    there too, and link the two.
+
+## Linking an existing test suite
+
+When tests predate the specs, `<specai> trace` lists each component's untagged tests. Take each one in
+turn:
+
+- **Fits an existing test definition:** tag it. If the definition is broader than the test, narrow its
+  text to the test's case, and set it to `proposed`.
+- **Fits a requirement but no test definition:** add a `proposed` test definition describing its case,
+  and tag it.
+- **Checks two test definitions:** split it, one test per definition.
+- **Same case as a test already tagged:** give it its own test definition if it really is another
+  case; otherwise it is a duplicate, so list it for deletion.
+- **Fits no requirement:** list it for the human to decide: keep it and add a requirement, treat it as
+  an implementation detail and leave it untagged, delete it, or discuss.
+- **Fits a requirement whose `components` do not list its repo:** a component mismatch; trace does not
+  count it. List it for the human: the requirement's components or the test's place is wrong.
+- **Asserts behaviour its requirement rejects:** the spec and the code disagree. Leave it untagged and
+  list it for the human to decide which is right.
+
+Put the lists in the pull request.
 
 Approval belongs to the human. The statuses you set are `draft`, `proposed` and `deprecated`; the
 approval guard in CI rejects any commit with your co-author trailer that sets `approved`.

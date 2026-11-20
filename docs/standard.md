@@ -184,6 +184,12 @@ service shall refuse the loan."
 A test definition describes what one test checks. It sits inside the requirement it verifies and
 verifies no other. It is prose for a human to review, not executable code.
 
+**One test per test definition.** A requirement may have many test definitions; each test definition
+is implemented by exactly one test, and each test implements exactly one test definition. A
+parameterised test, such as an xUnit `[Theory]` or a Vitest `it.each`, counts as one test. Two tests
+of the same case are either two cases, each needing its own test definition, or a duplicate. Tests
+may share setup through fixtures or helpers.
+
 | Field | Required | Text | Description |
 |---|---|---|---|
 | `id` | yes | | `<requirement ID>-Tn`, such as `LOAN-001-T1` |
@@ -195,10 +201,13 @@ verifies no other. It is prose for a human to review, not executable code.
 | `then` | yes | plain, list | expected outcomes |
 | `notes` | no | Markdown | anything else |
 
-Test code links back by naming the test-definition ID:
+Test code links back by naming the test-definition ID, once, in the one test that implements it:
 
 - xUnit: `[Trait("SpecAI", "LOAN-001-T1")]`
 - Vitest: `it('[LOAN-001-T1] refuses a sixth loan', …)`
+
+Do not record the test's name or file in `notes`: the tools work it out, and `specai validate` warns
+when notes appear to.
 
 ## Glossary terms
 
@@ -273,4 +282,19 @@ Deprecated and removed test definitions are not counted. Test code links to a te
   `*.test.*` or `*.spec.*` file
 
 Only code in the requirement's own components counts; a requirement with no components counts code in
-all of them. Test code naming an ID that no requirement has is an error.
+all of them.
+
+`specai trace` checks the [one-test-per-test-definition](#test-definitions) rule and reports:
+
+| Finding | Severity |
+|---|---|
+| test code naming an ID that no requirement has | error |
+| a test definition named by more than one test | error |
+| one test naming more than one test definition: several `Trait("SpecAI", …)` attributes on one xUnit method, or several bracketed IDs in one Vitest test name | error |
+| test code naming a test definition in a component its requirement does not list, so it is not counted | warning |
+| tests naming no test definition, listed per component | information |
+
+Errors make `specai trace` fail. It finds tests by pattern matching, not by parsing: an xUnit test is a
+method with a `[Fact]` or `[Theory]` attribute, and a Vitest test is an `it` or `test` call (with any
+of `.each`, `.only`, `.skip` and the like) whose first argument is a string literal followed by the
+test function. The list of untagged tests is a guide, not an exact count.
