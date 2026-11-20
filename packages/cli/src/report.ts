@@ -33,9 +33,30 @@ export function formatTrace(requirements: Requirement[], result: TraceResult): s
     lines.push('', 'error: test code names test definitions that do not exist:')
     for (const l of result.unknown) lines.push(`  ${l.file}:${l.line}  ${l.testId}`)
   }
+  const duplicates = Object.entries(result.duplicates)
+  if (duplicates.length > 0) {
+    lines.push('', 'error: test definitions named by more than one test; each needs exactly one:')
+    for (const [id, links] of duplicates) lines.push(`  ${id}  ${links.map((l) => `${l.file}:${l.line}`).join(', ')}`)
+  }
+  if (result.multiple.length > 0) {
+    lines.push('', 'error: tests naming more than one test definition; each test implements exactly one:')
+    for (const m of result.multiple) lines.push(`  ${m.file}:${m.line}  ${m.testIds.join(', ')}`)
+  }
+  if (result.misplaced.length > 0) {
+    lines.push('', "warning: test code in a component its requirement does not list, so it is not counted:")
+    for (const l of result.misplaced) lines.push(`  ${l.file}:${l.line}  ${l.testId} (${l.requirement} lists ${l.components.join(', ')})`)
+  }
   if (result.missing.length > 0) {
     lines.push('', `warning: no checkout found in ${result.checkouts} for:`)
     for (const m of result.missing) lines.push(`  ${m.component} (expected at ${m.path})`)
+  }
+  const untagged = Object.entries(result.untagged).filter(([, tests]) => tests.length > 0)
+  if (untagged.length > 0) {
+    lines.push('', 'Tests naming no test definition, by component (found by pattern matching, so a guide, not a count):')
+    for (const [component, tests] of untagged) {
+      lines.push(`  ${component}: ${plural(tests.length, 'test')}`)
+      for (const t of tests) lines.push(`    ${t.file}:${t.line}  ${t.name}`)
+    }
   }
   const approved = requirements.filter((r) => r.status === 'approved')
   const covered = approved.filter((r) => result.coverage[r.id] === 'covered').length

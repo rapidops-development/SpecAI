@@ -60,6 +60,10 @@ Write the statement as one sentence with one "shall", in the pattern that fits:
 A test definition describes one check of its requirement, as prose a human reviews. It verifies only
 the requirement it sits in.
 
+A requirement may have many test definitions; each test definition is implemented by exactly one test,
+and each test implements exactly one test definition. A parameterised test (`[Theory]`, `it.each`)
+counts as one test. `<specai> trace` fails when test code breaks this.
+
 | Field | What to write |
 |---|---|
 | `title` | the case, such as "Sixth loan is refused" |
@@ -67,7 +71,7 @@ the requirement it sits in.
 | `given` | preconditions, one per line |
 | `when` | the one action |
 | `then` | expected outcomes, one per line, each one a test can assert |
-| `notes` | anything else, in Markdown |
+| `notes` | anything else, in Markdown; not the test's name or file, which trace works out |
 
 - Cover the requirement: its main case first, then each unwanted or boundary case its statement or
   acceptance criteria name.
@@ -76,6 +80,10 @@ the requirement it sits in.
   already guard it. Link the requirement in `related`, and add a test definition there if it has none.
 - Test code that implements it names its ID: `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit;
   `it('[LOAN-042-T1] …')` in Vitest, the ID in square brackets in the test name.
+- Split a test that checks two definitions into two tests. Shared setup through fixtures or helpers is
+  fine.
+- Give a second test of the same case its own definition, or delete it as a true duplicate.
+- Don't record a test's name or file in `notes`; trace derives it.
 
 ## Glossary terms
 

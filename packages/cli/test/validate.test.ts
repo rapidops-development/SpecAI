@@ -142,4 +142,21 @@ tests:
       expect(messages(changes)).toEqual(['error components specai.yaml: component Library.API is listed twice'])
     })
   })
+
+  describe('test definition notes', () => {
+    const withNotes = (notes: string) => edit('loans/LOAN-001.yaml', '      - The loan is refused\n', `      - The loan is refused\n    notes: |\n      ${notes}\n`)
+
+    it('[CLI-014-T1] warns when notes name the test that implements it', () => {
+      const [d] = check(withNotes('Implemented by `SixthLoan_IsRefused` in `LoanTests.cs`.'))
+      expect(d).toMatchObject({ severity: 'warning', rule: 'notes', id: 'LOAN-001-T1', field: '/tests/0/notes', line: 15 })
+    })
+
+    it.each(['See loans.test.ts for the setup.', 'Lives in LoanTests.cs.', 'Tested in `web/loans.spec.tsx`.'])('also warns for "%s"', (notes) => {
+      expect(messages(withNotes(notes))).toEqual([expect.stringContaining('warning notes loans/LOAN-001.yaml')])
+    })
+
+    it('[CLI-014-T2] passes other notes', () => {
+      expect(check(withNotes('The limit counts open loans only. `specai validate` checks the wording; tested by hand at the desk.'))).toEqual([])
+    })
+  })
 })

@@ -3,7 +3,7 @@ import type { Diagnostic } from './diagnostic.ts'
 import { findLinks } from './links.ts'
 import { type Area, type GlossaryTerm, type Requirement, type RootConfig, requirementIdPattern, requirementText, testText } from './model.ts'
 import { contentHash, fileStem, loadSpecTree, type SpecFile } from './tree.ts'
-import { type Coverage, type TestLink, trace } from './trace.ts'
+import { type TraceResult, trace } from './trace.ts'
 import { passesSchema, validateTree } from './validate.ts'
 
 export interface IndexedArea extends Area {
@@ -43,13 +43,7 @@ export interface SpecIndex {
   children: Record<string, string[]>
   diagnostics: Diagnostic[]
   /** Coverage from scanning test code, when the component checkouts are known. */
-  trace?: {
-    checkouts: string
-    coverage: Record<string, Coverage>
-    links: Record<string, TestLink[]>
-    unknown: TestLink[]
-    missing: { component: string; path: string }[]
-  }
+  trace?: TraceResult
 }
 
 export interface IndexOptions {

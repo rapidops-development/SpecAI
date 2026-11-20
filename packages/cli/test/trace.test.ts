@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import type { Requirement, RootConfig } from '../src/model.ts'
 import { trace } from '../src/trace.ts'
-import { writeTree } from './fixtures.ts'
+import { edit, writeTree } from './fixtures.ts'
 
 const config: RootConfig = {
   specai: '0.1',
@@ -115,7 +115,7 @@ describe('specai trace', () => {
       'loans/LOAN-001.yaml': `specai: "0.1"\nid: LOAN-001\ntitle: Loan limit\nstatus: approved\nstatement: The service shall refuse a sixth loan.\ncomponents: [Library.API]\ntests:\n  - id: LOAN-001-T1\n    title: Refused\n    status: approved\n    level: unit\n    when: x\n    then: [y]\n`,
     })
     const run = (dir: string, ...args: string[]) => spawnSync(process.execPath, [main, 'trace', root, '--checkouts', dir, ...args], { encoding: 'utf8' })
-    const covered = run(checkouts({ 'Library.API/LoanTests.cs': xunit.replace('LOAN-009-T1', 'LOAN-001-T1') }))
+    const covered = run(checkouts({ 'Library.API/LoanTests.cs': xunit.replace('[Fact, Trait("SpecAI", "LOAN-009-T1")]', '[Fact]') }))
     expect(covered.status).toBe(0)
     expect(covered.stdout).toContain('LOAN-001  approved    covered  1/1 test definitions linked')
     expect(covered.stdout).toContain('1 of 1 approved requirement covered')
@@ -123,5 +123,160 @@ describe('specai trace', () => {
     const none = checkouts({ 'Library.API/Other.cs': '' })
     expect(run(none).status).toBe(0)
     expect(run(none, '--strict').status).toBe(1)
+  })
+
+  describe('one test per test definition', () => {
+    const t1 = id(1)
+    const t2 = id(2)
+    const loan002 = (components = ['Library.Web']) => req('LOAN-002', [t1, t2], components)
+
+    it('[CLI-010-T1] reports a test definition named by two tests', () => {
+      const dir = checkouts({
+        'web/app/src/a.test.ts': `it('[${t1}] blocks overdue members', () => {})\n`,
+        'web/app/src/b.test.ts': `\n\nit('[${t1}] blocks them again', () => {})\n`,
+      })
+      const result = trace(config, [loan002()], dir)
+      expect(result.duplicates).toEqual({
+        [t1]: [
+          { testId: t1, file: 'web/app/src/a.test.ts', line: 1, framework: 'vitest' },
+          { testId: t1, file: 'web/app/src/b.test.ts', line: 3, framework: 'vitest' },
+        ],
+      })
+      expect(result.coverage['LOAN-002']).toBe('partial')
+    })
+
+    it('counts a parameterised test as one test', () => {
+      const dir = checkouts({ 'web/app/src/a.test.ts': `it.each([1, 2, 3])('[${t1}] case %s', () => {})\n` })
+      expect(trace(config, [loan002()], dir).duplicates).toEqual({})
+    })
+
+    it('[CLI-010-T2] reports an xUnit method with two SpecAI traits', () => {
+      const dir = checkouts({
+        'Library.API/LoanTests.cs': `public class LoanTests
+{
+    [Fact]
+    [Trait("SpecAI", "LOAN-001-T1")]
+    // Also checks the second case.
+    [Trait("SpecAI", "LOAN-001-T2")]
+    public void Both() { }
+
+    [Theory, Trait("SpecAI", "LOAN-001-T3")]
+    [InlineData(1)]
+    public void Third(int n) { }
+}
+`,
+      })
+      const result = trace(config, [req('LOAN-001', ['LOAN-001-T1', 'LOAN-001-T2', 'LOAN-001-T3'])], dir)
+      expect(result.multiple).toEqual([{ file: 'Library.API/LoanTests.cs', line: 7, framework: 'xunit', testIds: ['LOAN-001-T1', 'LOAN-001-T2'] }])
+      expect(result.coverage['LOAN-001']).toBe('covered')
+    })
+
+    it('[CLI-010-T3] finds every ID in a Vitest test name and reports the test', () => {
+      const dir = checkouts({ 'web/app/src/a.test.ts': `describe('loans', () => {\n  it('[${t1}] [${t2}] blocks and warns', () => {})\n})\n` })
+      const result = trace(config, [loan002()], dir)
+      expect(result.links[t2]).toEqual([{ testId: t2, file: 'web/app/src/a.test.ts', line: 2, framework: 'vitest' }])
+      expect(result.multiple).toEqual([{ file: 'web/app/src/a.test.ts', line: 2, framework: 'vitest', testIds: [t1, t2] }])
+    })
+
+    it('[CLI-012-T1] warns about a link in a component the requirement does not list', () => {
+      const dir = checkouts({ 'Library.API/tests/a.test.ts': `it('[${t1}] blocks overdue members', () => {})\n` })
+      const result = trace(config, [loan002()], dir)
+      expect(result.misplaced).toEqual([
+        { testId: t1, file: 'Library.API/tests/a.test.ts', line: 1, framework: 'vitest', requirement: 'LOAN-002', components: ['Library.Web'] },
+      ])
+      expect(result.links[t1]).toEqual([])
+      expect(result.unknown).toEqual([])
+    })
+
+    it('[CLI-013-T1] lists untagged xUnit methods', () => {
+      const dir = checkouts({
+        'Library.API/LoanTests.cs': `public class LoanTests
+{
+    [Fact]
+    [Trait("SpecAI", "LOAN-001-T1")]
+    public void Tagged() { }
+
+    [Fact(Skip = "slow")]
+    public async Task Untagged() { }
+
+    [Theory]
+    [InlineData(1,
+        2)]
+    public void Parameterised(int a, int b) { }
+}
+`,
+      })
+      expect(trace(config, [req('LOAN-001', ['LOAN-001-T1'])], dir).untagged).toEqual({
+        'Library.API': [
+          { file: 'Library.API/LoanTests.cs', line: 8, framework: 'xunit', name: 'Untagged' },
+          { file: 'Library.API/LoanTests.cs', line: 13, framework: 'xunit', name: 'Parameterised' },
+        ],
+      })
+    })
+
+    it('[CLI-013-T2] lists untagged Vitest tests and ignores helpers', () => {
+      const dir = checkouts({
+        'web/app/src/a.test.ts': `const test = (name: string) => name
+describe('loans', () => {
+  it('[${t1}] tagged', () => {})
+  it('plain it', () => {})
+  test("plain test", async () => {})
+  it.each([[1, 2], [3, 4]])('each %s', (a) => {})
+  it.only('only', () => {})
+  test.skip(\`skip\`, () => {})
+  test('helper call')
+  test('helper with a string', 'deprecated')
+  expect(/x/.test('x')).toBe(true)
+})
+`,
+      })
+      const names = trace(config, [loan002()], dir).untagged['Library.Web'].map((t) => `${t.line} ${t.name}`)
+      expect(names).toEqual(['4 plain it', '5 plain test', '6 each %s', '7 only', '8 skip'])
+    })
+  })
+
+  describe('trace command', () => {
+    const main = fileURLToPath(new URL('../src/main.ts', import.meta.url))
+    const root = () =>
+      writeTree({
+        'loans/LOAN-001.yaml': `specai: "0.1"\nid: LOAN-001\ntitle: Loan limit\nstatus: approved\nstatement: The service shall refuse a sixth loan.\ncomponents: [Library.API]\ntests:\n  - id: LOAN-001-T1\n    title: Refused\n    status: approved\n    level: unit\n    when: x\n    then: [y]\n  - id: LOAN-001-T2\n    title: Warned\n    status: approved\n    level: unit\n    when: x\n    then: [y]\n`,
+      })
+    const run = (files: Record<string, string>, ...args: string[]) =>
+      spawnSync(process.execPath, [main, 'trace', root(), '--checkouts', checkouts(files), ...args], { encoding: 'utf8' })
+    const method = (name: string, ...ids: string[]) => `${ids.map((i) => `    [Trait("SpecAI", "${i}")]\n`).join('')}    [Fact]\n    public void ${name}() { }\n`
+    const cs = (...methods: string[]) => ({ 'Library.API/LoanTests.cs': `public class LoanTests\n{\n${methods.join('\n')}}\n` })
+
+    it('[CLI-010-T4] fails when a link is not one to one', () => {
+      const files = cs(method('A', 'LOAN-001-T1'), method('B', 'LOAN-001-T1'), method('Both', 'LOAN-001-T1', 'LOAN-001-T2'))
+      for (const args of [[], ['--strict']]) {
+        const out = run(files, ...args)
+        expect(out.stdout).toContain('error: test definitions named by more than one test')
+        expect(out.stdout).toContain('error: tests naming more than one test definition')
+        expect(out.stdout).toContain('Library.API/LoanTests.cs:14  LOAN-001-T1, LOAN-001-T2')
+        expect(out.status).toBe(1)
+      }
+    })
+
+    it('[CLI-013-T3] reports untagged tests without failing', () => {
+      const files = cs(method('A', 'LOAN-001-T1'), method('B', 'LOAN-001-T2'), method('Extra'))
+      const text = run(files, '--strict')
+      expect(text.status).toBe(0)
+      expect(text.stdout).toContain('  Library.API: 1 test\n    Library.API/LoanTests.cs:12  Extra')
+      const json = run(files, '--json')
+      expect(json.status).toBe(0)
+      expect(JSON.parse(json.stdout).untagged).toEqual({ 'Library.API': [{ file: 'Library.API/LoanTests.cs', line: 12, framework: 'xunit', name: 'Extra' }] })
+    })
+
+    it('prints the component mismatch warning without failing', () => {
+      const loan1 = ['LOAN', '001', 'T1'].join('-')
+      const out = spawnSync(
+        process.execPath,
+        [main, 'trace', writeTree(edit('specai.yaml', '  - name: Library.API\n', '  - name: Library.API\n  - name: Library.Web\n')), '--checkouts', checkouts({ 'Library.API/Other.cs': '', 'Library.Web/a.test.ts': `it('[${loan1}] x', () => {})\n` })],
+        { encoding: 'utf8' },
+      )
+      expect(out.stdout).toContain('warning: test code in a component its requirement does not list')
+      expect(out.stdout).toContain('Library.Web/a.test.ts:1  LOAN-001-T1 (LOAN-001 lists Library.API)')
+      expect(out.status).toBe(0)
+    })
   })
 })

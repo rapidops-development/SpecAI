@@ -20,8 +20,10 @@ Commands:
   trace [dir]      Report which test definitions have linked test code
     --checkouts <dir>  Folder holding the component checkouts (default: the folder
                        holding the spec tree's git repo)
-    --strict       Fail unless every approved requirement is covered
+    --strict       Also fail unless every approved requirement is covered
     --json         Print the result as JSON
+                   Fails on errors: unknown IDs, a test definition named by
+                   more than one test, or a test naming more than one
   serve [dir]      Browse a spec tree in the web UI (default: current folder)
     --port <n>     Port to listen on (default: 4321)
     --checkouts <dir>  As for trace, to show coverage
@@ -101,7 +103,8 @@ function traceCommand(argv: string[]): number {
   } else {
     process.stdout.write(`${formatTrace(index.requirements, result)}\n`)
   }
-  return result.unknown.length > 0 || (values.strict && uncovered.length > 0) ? 1 : 0
+  const errors = result.unknown.length + Object.keys(result.duplicates).length + result.multiple.length
+  return errors > 0 || (values.strict && uncovered.length > 0) ? 1 : 0
 }
 
 if (import.meta.main) process.exitCode = run(process.argv.slice(2))

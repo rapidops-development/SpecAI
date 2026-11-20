@@ -63,11 +63,15 @@ specai validate path/to/specs --json          # machine-readable output
 ```sh
 specai trace path/to/specs                    # coverage of every requirement
 specai trace path/to/specs --checkouts ~/src  # where the component checkouts are
-specai trace path/to/specs --strict           # fail unless every approved requirement is covered
+specai trace path/to/specs --strict           # also fail unless every approved requirement is covered
+specai trace path/to/specs --json             # machine-readable output
 ```
 
 Test code names the test definition it implements: `[Trait("SpecAI", "LOAN-042-T1")]` in xUnit, or
-`it('[LOAN-042-T1] …')` in Vitest. Each component's code is looked for at `<checkouts>/<path>`, and
+`it('[LOAN-042-T1] …')` in Vitest. Each test definition is implemented by exactly one test, and each
+test implements exactly one test definition; trace fails when test code breaks that rule or names an
+ID that does not exist, warns about links in a component the requirement does not list, and lists the
+tests that name no test definition. Each component's code is looked for at `<checkouts>/<path>`, and
 `--checkouts` defaults to the folder holding the spec tree's git repo, which suits repos cloned side
 by side. `specai serve` takes the same option and shows coverage in the UI.
 
