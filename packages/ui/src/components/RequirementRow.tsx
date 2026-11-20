@@ -1,3 +1,4 @@
+import { implementationLabels } from '../lib/filters.ts'
 import { Link, paths } from '../router.tsx'
 import { useSpec } from './SpecContext.tsx'
 import type { IndexedRequirement } from '../types.ts'
@@ -23,6 +24,9 @@ export function RequirementRow({ req }: { req: IndexedRequirement }) {
         <span className="col-start-2 mt-1.5 flex items-center gap-3 sm:col-start-3 sm:mt-0 sm:flex-col sm:items-end sm:gap-1">
           <Status status={req.status} />
           <span className={`text-xs ${trace && tests > 0 && linked < tests ? 'text-warn' : 'text-muted'}`}>{testText}</span>
+          {trace?.implementation && trace.implementation[req.id] !== 'implemented' && (
+            <span className={`text-xs ${trace.implementation[req.id] === 'unimplemented' ? 'text-warn' : 'text-muted'}`}>{implementationLabels[trace.implementation[req.id]]}</span>
+          )}
         </span>
       </Link>
     </li>
