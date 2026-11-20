@@ -2,7 +2,7 @@ specai: "0.2"
 id: UI-002
 title: Filter and group
 status: proposed
-statement: The UI shall filter and group requirements by [[area]], status, tag, [[component]], [[coverage]] and test level.
+statement: The UI shall filter and group requirements by [[area]], status, [[implementation status]], tag, [[component]], [[coverage]] and test level.
 components: [UI]
 tests:
   - id: UI-002-T1

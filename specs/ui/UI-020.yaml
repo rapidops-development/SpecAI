@@ -1,0 +1,31 @@
+specai: "0.2"
+id: UI-020
+title: Issue links
+status: proposed
+statement: >-
+  The UI shall show a [[requirement]]'s issues as links, filling `owner/repo#number` shorthand into
+  the `issueUrl` template from `specai.yaml`, or into a GitHub issue link when it sets none.
+components: [UI]
+related: [STD-011]
+tests:
+  - id: UI-020-T1
+    title: GitHub by default
+    status: proposed
+    level: unit
+    when: '`acme/library#12` is linked with no template'
+    then:
+      - The link is https://github.com/acme/library/issues/12
+  - id: UI-020-T2
+    title: Template
+    status: proposed
+    level: unit
+    when: '`acme/library#12` is linked with a template using `{owner}`, `{repo}` and `{number}`'
+    then:
+      - The link fills each part into the template
+  - id: UI-020-T3
+    title: URLs as written
+    status: proposed
+    level: unit
+    when: An issue given as a URL is linked
+    then:
+      - The link is the URL, whatever the template
