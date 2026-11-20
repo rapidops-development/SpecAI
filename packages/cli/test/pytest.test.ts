@@ -82,6 +82,17 @@ describe('pytest', () => {
     ])
   })
 
+  it('[CLI-022-T4] skips Python virtual environments', () => {
+    const installed = '@pytest.mark.specai("LOAN-001-T1")\ndef test_marked():\n    pass\n\ndef test_unmarked():\n    pass\n'
+    const result = trace(config, loans, checkouts({
+      'Library.API/.venv/lib/python3.12/site-packages/pkg/tests/test_pkg.py': installed,
+      'Library.API/venv/lib/python3.12/site-packages/pkg/test_pkg.py': installed,
+      'Library.API/.tox/py312/lib/site-packages/pkg/pkg_test.py': installed,
+    }))
+    expect(result.links['LOAN-001-T1']).toEqual([])
+    expect(result.untagged['Library.API']).toEqual([])
+  })
+
   it('reads implementation annotations in Python source but not in pytest files', () => {
     const result = trace(config, loans, checkouts({ 'Library.API/app/loans.py': '# SpecAI: LOAN-001\ndef borrow():\n    pass\n', 'Library.API/tests/test_x.py': '# SpecAI: LOAN-009\n' }))
     expect(result.implementations['LOAN-001']).toEqual([{ requirementId: 'LOAN-001', file: 'Library.API/app/loans.py', line: 1 }])
