@@ -12,7 +12,7 @@ acceptance:
   - Annotations name requirement IDs, never test definition IDs; tests keep linking to test definitions.
   - A requirement may be implemented in many places, and one place may implement many requirements.
 components: [CLI]
-related: [STD-010]
+related: [STD-010, CLI-017]
 rationale: |
   Specs that point at their code let people and agents go from a requirement to what builds it,
   find requirements nothing builds, and find the requirements a code change touches. Paths written
@@ -20,5 +20,6 @@ rationale: |
   links do. "Implemented by" and "tested by" are different facts, so annotations do not replace
   test links.
 notes: |
-  `specai trace` will find annotations and report each approved requirement as implemented,
-  planned (it has `issues`) or unimplemented; that support is not built yet.
+  `specai trace` finds annotations ([[CLI-017]]) and works out each requirement's
+  [[implementation status]] ([[CLI-019]]); `specai impact` lists the requirements a change touches
+  ([[CLI-020]]).

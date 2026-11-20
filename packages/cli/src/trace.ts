@@ -1,6 +1,7 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
+import { type Annotation, type BadAnnotation, findAnnotations } from './annotations.ts'
 import type { Requirement, RootConfig } from './model.ts'
 
 /** A place in test code that names a test definition ID. */
@@ -44,6 +45,18 @@ export interface MisplacedLink extends TestLink {
  */
 export type Coverage = 'covered' | 'partial' | 'uncovered' | 'untested'
 
+/**
+ * Whether a requirement has code: `implemented` when an implementation annotation in one of its
+ * components names it, `planned` when none does but it lists issues, and `unimplemented` otherwise.
+ */
+export type Implementation = 'implemented' | 'planned' | 'unimplemented'
+
+/** An annotation in a component its requirement does not list, or naming a removed requirement. */
+export interface MisplacedAnnotation extends Annotation {
+  /** The components the requirement lists. */
+  components: string[]
+}
+
 export interface TraceResult {
   checkouts: string
   /** Test definition ID → where test code names it, within the requirement's components. */
@@ -61,6 +74,17 @@ export interface TraceResult {
   untagged: Record<string, FoundTest[]>
   /** Components whose code is not at the expected path. */
   missing: { component: string; path: string }[]
+  /** Requirement ID → the implementation annotations naming it, within its components. */
+  implementations: Record<string, Annotation[]>
+  implementation: Record<string, Implementation>
+  /** Annotations naming a requirement that does not exist. An error. */
+  unknownAnnotations: Annotation[]
+  /** Annotation entries that are a test definition ID or not an ID at all. An error. */
+  badAnnotations: BadAnnotation[]
+  /** Annotations in components their requirement does not list, so not counted. A warning. */
+  misplacedAnnotations: MisplacedAnnotation[]
+  /** Annotations naming a removed requirement, which should no longer have code. A warning. */
+  removedAnnotations: Annotation[]
 }
 
 /** What one component's test code holds. */
@@ -68,6 +92,8 @@ export interface ScanResult {
   links: TestLink[]
   multiple: MultiLink[]
   untagged: FoundTest[]
+  annotations: Annotation[]
+  badAnnotations: BadAnnotation[]
 }
 
 const testId = '[A-Z][A-Z0-9]{1,7}-[0-9]{3,}-T[1-9][0-9]*'
@@ -83,6 +109,9 @@ const hasBracketedId = new RegExp(`\\[${testId}\\]`)
 const vitestCallPattern = /(?<![\w$.])(?:it|test)((?:\s*\.\s*[A-Za-z]+)*)\s*([(`])/g
 const vitestFile = /\.(test|spec)\.[cm]?[jt]sx?$/
 const skipped = new Set(['node_modules', '.git', 'bin', 'obj', 'dist', 'build', 'coverage', '.next'])
+// Files that can hold implementation annotations: not documentation, and not too large to be source.
+const documentation = /\.(md|mdx|markdown|txt)$/i
+const maxSourceBytes = 1_000_000
 
 /** The folder the component checkouts sit in: by default, the folder holding the spec tree's repo. */
 export function defaultCheckouts(specRoot: string): string {
@@ -134,7 +163,33 @@ export function trace(config: RootConfig, requirements: Requirement[], checkouts
   const unknown = all.filter((l) => !known.has(l.testId))
   const multiple = dedupeBy([...found.values()].flatMap((s) => s.multiple), (m) => `${m.file}:${m.line}`)
   const untagged = Object.fromEntries([...found].map(([name, s]) => [name, s.untagged]))
-  return { checkouts, links, coverage, unknown, duplicates, multiple, misplaced, untagged, missing }
+  return { checkouts, links, coverage, unknown, duplicates, multiple, misplaced, untagged, missing, ...implementationOf(requirements, components, found) }
+}
+
+const annotationPlace = (a: Annotation) => `${a.requirementId} ${a.file}:${a.line}`
+
+/** Links implementation annotations to requirements, the same way test links are scoped to components. */
+function implementationOf(requirements: Requirement[], components: { name: string }[], found: Map<string, ScanResult>) {
+  const all = dedupeBy([...found.values()].flatMap((s) => s.annotations), annotationPlace)
+  const ids = new Set(requirements.map((r) => r.id))
+  const implementations: Record<string, Annotation[]> = {}
+  const implementation: Record<string, Implementation> = {}
+  const misplacedAnnotations: MisplacedAnnotation[] = []
+  const removedAnnotations: Annotation[] = []
+  for (const req of requirements) {
+    const scope = req.components?.length ? req.components : components.map((c) => c.name)
+    const inScope = dedupeBy(scope.flatMap((name) => found.get(name)?.annotations ?? []), annotationPlace).filter((a) => a.requirementId === req.id)
+    implementations[req.id] = inScope
+    const places = new Set(inScope.map(annotationPlace))
+    for (const a of all) {
+      if (a.requirementId === req.id && !places.has(annotationPlace(a))) misplacedAnnotations.push({ ...a, components: scope })
+    }
+    if (req.status === 'removed') removedAnnotations.push(...inScope)
+    implementation[req.id] = inScope.length > 0 ? 'implemented' : req.issues?.length ? 'planned' : 'unimplemented'
+  }
+  const unknownAnnotations = all.filter((a) => !ids.has(a.requirementId))
+  const badAnnotations = dedupeBy([...found.values()].flatMap((s) => s.badAnnotations), (b) => `${b.text} ${b.file}:${b.line}`)
+  return { implementations, implementation, unknownAnnotations, badAnnotations, misplacedAnnotations, removedAnnotations }
 }
 
 /**
@@ -150,17 +205,30 @@ export function trace(config: RootConfig, requirements: Requirement[], checkouts
  *   an ID in square brackets also counts as a link, as it always has.
  */
 export function scan(dir: string, checkouts: string): ScanResult {
-  const out: ScanResult = { links: [], multiple: [], untagged: [] }
+  const out = emptyScan()
   for (const path of listFiles(dir)) {
-    const framework = path.endsWith('.cs') ? 'xunit' : vitestFile.test(path) ? 'vitest' : undefined
-    if (!framework) continue
-    const text = readFileSync(path, 'utf8')
-    const file = relative(checkouts, path).split(sep).join('/')
-    const lineAt = (index: number) => lineOf(text, index)
-    if (framework === 'xunit') scanXunit(text, file, lineAt, out)
-    else scanVitest(text, file, lineAt, out)
+    if (documentation.test(path) || statSync(path).size > maxSourceBytes) continue
+    scanText(readFileSync(path, 'utf8'), relative(checkouts, path).split(sep).join('/'), out)
   }
   return out
+}
+
+export function emptyScan(): ScanResult {
+  return { links: [], multiple: [], untagged: [], annotations: [], badAnnotations: [] }
+}
+
+/** Reads one file's text into a scan result. `file` is its path, with forward slashes; its name decides how it is read. */
+export function scanText(text: string, file: string, out: ScanResult): void {
+  if (documentation.test(file) || text.includes('\0')) return
+  const framework = file.endsWith('.cs') ? 'xunit' : vitestFile.test(file) ? 'vitest' : undefined
+  const lineAt = (index: number) => lineOf(text, index)
+  if (framework === 'xunit') scanXunit(text, file, lineAt, out)
+  else if (framework === 'vitest') scanVitest(text, file, lineAt, out)
+  // Test files link to test definitions, not requirements, and often hold example annotations as data.
+  if (framework === 'vitest' || (framework === 'xunit' && new RegExp(xunitTestPattern.source).test(text))) return
+  const { annotations, bad } = findAnnotations(text, file)
+  out.annotations.push(...annotations)
+  out.badAnnotations.push(...bad)
 }
 
 function scanXunit(text: string, file: string, lineAt: (i: number) => number, out: ScanResult) {
