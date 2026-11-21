@@ -17,7 +17,7 @@ edit to a spec tree in a session.
 The repo's `AGENTS.md` names the spec tree, the component this repo is, and the `specai` command to
 run. Without it, look for a `specai.yaml` in the repo or in a sibling checkout, and ask the human
 which component the repo is. `<specai>` below means that command; if it fails for a missing package,
-run `npm ci` once in the SpecAI checkout.
+run `npm run setup` once in the SpecAI checkout.
 
 ## Steps
 

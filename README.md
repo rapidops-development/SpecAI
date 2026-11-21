@@ -21,35 +21,30 @@ beside it. Point the tools at that folder.
 With Node 24, from a clone of this repo:
 
 ```sh
-npm install                                               # once
-npm run build                                             # once, and after pulling UI changes
-node packages/cli/src/main.ts serve ../my-project/specs
+npm run setup                    # once, and again after each pull
+specai serve ../my-project/specs
 ```
 
-Then open <http://localhost:4321>. The path is relative to the folder you run the command from, so
-this example assumes a `my-project` repo holding its spec tree in `specs/` is checked out beside
-this one. To try it without
-another repo, serve this repo's own specs with `node packages/cli/src/main.ts serve specs`, or the
-example with `node packages/cli/src/main.ts serve examples/library`.
+Then open <http://localhost:4321>. `npm run setup` checks your Node version, installs the
+dependencies, builds the UI and links a global `specai` command; it prints the full
+`node packages/cli/src/main.ts` command to use instead if linking fails, and
+`npm run setup -- --no-link` skips linking. The path is relative to the folder you run the command
+from, so this example assumes a `my-project` repo holding its spec tree in `specs/` is checked out
+beside this one. To try it without another repo, serve this repo's own specs with
+`specai serve specs`, or the example with `specai serve examples/library`.
 
-- Leave the path out to serve the folder you are in:
-  `cd ../my-project/specs && node <path to this repo>/packages/cli/src/main.ts serve`.
+- Leave the path out to serve the folder you are in: `cd ../my-project/specs && specai serve`.
 - `--port <n>` changes the port. The server answers only on `localhost`.
 - Coverage appears when the repos the specs describe are checked out beside each other. Otherwise pass `--checkouts <folder holding them>`. See
   [which requirements have tests in code](#see-which-requirements-have-tests-in-code).
-- If the page says the UI is not built, run `npm run build` and reload.
+- If `specai serve` warns that the UI changed since it was built, or the page says the UI is not
+  built, run `npm run setup` again and restart the server.
 - Stop the server with Ctrl+C.
 
 ## Using it
 
-Requires Node 24. From a clone:
-
-```sh
-npm install
-node packages/cli/src/main.ts validate path/to/specs
-```
-
-Or run `npm link -w packages/cli` once to get a global `specai` command:
+Requires Node 24. After `npm run setup` in a clone (see the [quick start](#quick-start-browse-a-spec-tree)),
+the `specai` command is on your path:
 
 ```sh
 specai validate path/to/specs                 # schema, IDs, layout, links, components, avoided words
@@ -99,7 +94,7 @@ line. Run `specai validate` afterwards.
 ### Browse specs in the web UI
 
 ```sh
-npm run build                                  # once, and after changing packages/ui
+npm run setup                                  # in this repo: once, and after each pull
 specai serve path/to/specs                     # then open http://localhost:4321
 specai serve path/to/specs --port 5000
 specai serve path/to/specs --checkouts ~/src   # show coverage from checkouts kept elsewhere
@@ -146,7 +141,7 @@ Built with TypeScript, npm workspaces, Node 24 and Vitest; Ajv validates against
 
 
 ```sh
-npm install
+npm run setup      # or just npm install, then npm run build for the UI
 npm test           # Vitest
 npm run typecheck
 npm run validate   # validate specs/ and examples/
