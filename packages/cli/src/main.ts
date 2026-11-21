@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 import { checkApprovals } from './approval.ts'
-import { createSpecServer } from './serve.ts'
+import { createSpecServer, defaultUiDir, uiBuildIsStale } from './serve.ts'
 import { buildIndex } from './spec-index.ts'
 import { defaultCheckouts } from './trace.ts'
 import { impact } from './impact.ts'
@@ -111,6 +111,10 @@ function serve(argv: string[]): number {
     process.exit(1)
   })
   server.listen(port, '127.0.0.1', () => process.stdout.write(`Serving ${dir} at http://localhost:${port}\n`))
+  if (uiBuildIsStale()) {
+    const repo = resolve(defaultUiDir, '../../..')
+    process.stderr.write(`specai: warning: the UI changed since it was last built, so the page may be out of date. Run \`npm run setup\` in ${repo}, then restart this.\n`)
+  }
   return 0
 }
 

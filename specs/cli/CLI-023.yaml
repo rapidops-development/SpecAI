@@ -1,0 +1,34 @@
+specai: "0.2"
+id: CLI-023
+title: Warn when the UI build is out of date
+status: proposed
+statement: >-
+  If the UI's source files are newer than its build when `specai serve` starts, then the tool shall
+  print a warning naming the command that rebuilds it.
+components: [CLI]
+related: [CLI-009]
+rationale: |
+  `specai serve` serves the UI as last built. After pulling UI changes without rebuilding, the
+  server is new but the page is old, and nothing says so: the page just misbehaves.
+acceptance:
+  - The warning goes to standard error and the server still starts.
+  - Where the UI's source is not present, such as in a packaged install, there is no warning.
+tests:
+  - id: CLI-023-T1
+    title: Source newer than the build
+    status: proposed
+    level: unit
+    given:
+      - A UI build, then a source file changed after it
+    when: The build is checked
+    then:
+      - It is reported as out of date
+  - id: CLI-023-T2
+    title: Build up to date or no source
+    status: proposed
+    level: unit
+    given:
+      - A UI build newer than every source file, then a build with no source beside it
+    when: The build is checked
+    then:
+      - Neither is reported as out of date

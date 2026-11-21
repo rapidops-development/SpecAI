@@ -1,12 +1,32 @@
-import { existsSync, readFileSync, statSync, watch } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, statSync, watch } from 'node:fs'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
-import { extname, join, normalize, resolve, sep } from 'node:path'
+import { dirname, extname, join, normalize, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRequirement, createTerm, EditError, readSpecFile, saveRawFile, saveRequirement, saveTerm } from './edit.ts'
 import { schemaDocuments, versionAt } from './schema.ts'
 import { buildIndex, TraceCache } from './spec-index.ts'
 
 export const defaultUiDir = fileURLToPath(new URL('../../ui/dist/', import.meta.url))
+
+/**
+ * Whether the UI's source has changed since it was built, judged by modification times. A built
+ * UI with no source beside it, as in a packaged install, is never out of date.
+ */
+// SpecAI: CLI-023
+export function uiBuildIsStale(uiDir = defaultUiDir): boolean {
+  const built = join(uiDir, 'index.html')
+  const ui = dirname(resolve(uiDir))
+  const sources = ['src', 'index.html', 'package.json', 'vite.config.ts'].map((name) => join(ui, name)).filter(existsSync)
+  if (!existsSync(built) || !existsSync(join(ui, 'src'))) return false
+  const builtAt = statSync(built).mtimeMs
+  return sources.some((path) => newestChange(path) > builtAt)
+}
+
+function newestChange(path: string): number {
+  const stat = statSync(path)
+  if (!stat.isDirectory()) return stat.mtimeMs
+  return Math.max(stat.mtimeMs, ...readdirSync(path).map((name) => newestChange(join(path, name))))
+}
 
 const types: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
