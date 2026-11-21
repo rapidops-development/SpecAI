@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { isSaveFailure, type SaveFailure, save } from '../api.ts'
 import { buttonClass, primaryClass, smallIcon } from '../components/forms/controls.ts'
 import { FieldInput } from '../components/forms/FieldInput.tsx'
-import { useFields } from '../components/forms/TestsInput.tsx'
+import { FieldsPending, useFields } from '../components/forms/TestsInput.tsx'
 import { announce, SaveError } from '../components/SaveFeedback.tsx'
 import { useSpec } from '../components/SpecContext.tsx'
 import { cleanData } from '../lib/fields.ts'
@@ -15,7 +15,7 @@ import { Missing } from './RequirementPage.tsx'
 export function TermEditor({ slug }: { slug?: string }) {
   const { index } = useSpec()
   const existing = slug ? index.terms.find((t) => t.slug === slug) : undefined
-  const fields = useFields('glossary-term')
+  const { fields, pending } = useFields('glossary-term')
   const [draft, setDraft] = useState<Partial<GlossaryTerm>>(() => {
     if (!existing) return { term: '', definition: '' }
     const { slug: _s, file: _f, hash: _h, ...data } = existing
@@ -54,14 +54,15 @@ export function TermEditor({ slug }: { slug?: string }) {
       <p className="text-muted text-sm"><Link href={back} className="hover:underline">{existing ? existing.term : 'Glossary'}</Link></p>
       <h1 className="mt-1 font-serif text-3xl font-semibold">{existing ? `Edit ${existing.term}` : 'New glossary term'}</h1>
       {!existing && <p className="text-muted mt-2">The file is named after the term, so link to it by the term or any other name you give it.</p>}
-      <div className="border-rule mt-8 space-y-5 border-t pt-6">
+      {pending && <FieldsPending pending={pending} />}
+      <div className="border-rule mt-8 space-y-5 border-t pt-6" hidden={!!pending}>
         {fields.map((field) => (
           <FieldInput key={field.key} field={field} value={draft[field.key as keyof GlossaryTerm]} onChange={(v) => setDraft((d) => ({ ...d, [field.key]: v }))} />
         ))}
       </div>
       {failure && <SaveError failure={failure} onReload={() => location.reload()} />}
       <div className="mt-8 flex gap-3">
-        <button type="submit" className={primaryClass} disabled={saving}><Check {...smallIcon} />{saving ? 'Saving' : existing ? 'Save changes' : 'Add term'}</button>
+        <button type="submit" className={primaryClass} disabled={saving || !!pending}><Check {...smallIcon} />{saving ? 'Saving' : existing ? 'Save changes' : 'Add term'}</button>
         <Link href={back} className={buttonClass}><X {...smallIcon} />Cancel</Link>
       </div>
     </form>

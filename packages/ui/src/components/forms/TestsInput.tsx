@@ -1,4 +1,4 @@
-import { ArrowUp, Plus, Trash2 } from 'lucide-react'
+import { ArrowUp, Plus, RotateCw, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { loadSchemas } from '../../api.ts'
 import { type Field, formFields } from '../../lib/fields.ts'
@@ -9,7 +9,7 @@ import { FieldInput } from './FieldInput.tsx'
 
 /** Test definitions as cards. New ones get their ID when the requirement is saved. */
 export function TestsInput({ value, onChange }: { value: Partial<TestDefinition>[]; onChange: (v: Partial<TestDefinition>[]) => void }) {
-  const fields = useFields('test')
+  const { fields } = useFields('test')
   const set = (i: number, test: Partial<TestDefinition>) => onChange(value.map((old, j) => (j === i ? test : old)))
   return (
     <div className="space-y-8">
@@ -45,15 +45,41 @@ function move<T>(items: T[], from: number, to: number): T[] {
   return copy
 }
 
-/** The form fields for a kind of file, read from the schema once. */
-export function useFields(kind: Parameters<typeof formFields>[1]): Field[] {
-  const [fields, setFields] = useState<Field[]>([])
+export interface FormFields {
+  /** Empty until the schema has loaded. */
+  fields: Field[]
+  /** Whether the schema is still loading, or why it failed. */
+  pending?: { error?: string; retry: () => void }
+}
+
+/** The form fields for a kind of file, read from the schema. */
+export function useFields(kind: Parameters<typeof formFields>[1]): FormFields {
+  const [fields, setFields] = useState<Field[]>()
+  const [error, setError] = useState<string>()
+  const [attempt, setAttempt] = useState(0)
   useEffect(() => {
     let live = true
-    void loadSchemas().then((schemas) => live && setFields(formFields(schemas, kind)))
+    setError(undefined)
+    loadSchemas().then(
+      (schemas) => live && setFields(formFields(schemas, kind)),
+      (e: unknown) => live && setError(e instanceof Error ? e.message : String(e)),
+    )
     return () => {
       live = false
     }
-  }, [kind])
-  return fields
+  }, [kind, attempt])
+  if (fields) return { fields }
+  return { fields: [], pending: { error, retry: () => setAttempt((n) => n + 1) } }
+}
+
+/** Stands in for a form's fields until the schema has loaded. */
+// SpecAI: UI-022
+export function FieldsPending({ pending }: { pending: NonNullable<FormFields['pending']> }) {
+  if (!pending.error) return <p className="text-muted mt-8" role="status">Loading the form</p>
+  return (
+    <div className="border-rule bg-surface mt-8 rounded-md border px-4 py-3" role="alert">
+      <p>Can’t load the form: the schema didn’t arrive ({pending.error}).</p>
+      <button type="button" className={`${buttonClass} mt-3`} onClick={pending.retry}><RotateCw {...smallIcon} />Try again</button>
+    </div>
+  )
 }
