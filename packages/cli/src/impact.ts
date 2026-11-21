@@ -1,6 +1,6 @@
 // SpecAI: CLI-020
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import type { Requirement, RootConfig } from './model.ts'
 import { emptyScan, type ScanResult, scanText } from './trace.ts'
@@ -57,12 +57,14 @@ export function impact(config: RootConfig, requirements: Requirement[], checkout
       skipped.push({ component: component.name, reason: repo })
       continue
     }
-    const prefix = relative(top, dir).split(sep).join('/')
+    // Git reports the top level with symbolic links resolved, so compare against the folder's real
+    // path, but name files by the path through the checkouts folder, as trace does.
+    const prefix = relative(top, realpathSync(dir)).split(sep).join('/')
     for (const path of repo.changed) {
       if (prefix && path !== prefix && !path.startsWith(`${prefix}/`)) continue
       if (seen.has(`${top}\0${path}`)) continue
       seen.add(`${top}\0${path}`)
-      const file = relative(checkouts, join(top, path)).split(sep).join('/')
+      const file = relative(checkouts, join(dir, prefix ? path.slice(prefix.length + 1) : path)).split(sep).join('/')
       const now = join(top, path)
       if (existsSync(now) && statSync(now).isFile() && statSync(now).size <= 1_000_000) scanText(readFileSync(now, 'utf8'), file, after)
       try {
