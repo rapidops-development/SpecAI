@@ -1,4 +1,5 @@
-import { OctagonAlert, Pencil } from 'lucide-react'
+import { ChevronLeft, ChevronRight, OctagonAlert, Pencil } from 'lucide-react'
+import { useMemo } from 'react'
 import { Markdown } from '../components/Markdown.tsx'
 import { PageLinks } from '../components/PageLinks.tsx'
 import { ProblemList } from '../components/Problems.tsx'
@@ -10,9 +11,11 @@ import { Text } from '../components/Text.tsx'
 import { Link, paths } from '../router.tsx'
 import { coverageLabels, implementationLabels } from '../lib/filters.ts'
 import { issueHref } from '../lib/issues.ts'
+import { createSearch } from '../lib/search.ts'
+import { neighbours } from '../lib/sequence.ts'
 import type { IndexedRequirement, TestDefinition } from '../types.ts'
 
-export function RequirementPage({ id }: { id: string }) {
+export function RequirementPage({ id, search = '' }: { id: string; search?: string }) {
   const { index } = useSpec()
   const req = index.requirements.find((r) => r.id === id)
   if (!req) return <Missing what={`requirement ${id}`} />
@@ -28,6 +31,7 @@ export function RequirementPage({ id }: { id: string }) {
             <span className="text-ink font-semibold tabular-nums">{req.id}</span>
             <Status status={req.status} />
             {area && <Link href={paths.area(area.folder)} className="hover:underline">{area.name}</Link>}
+            <Stepper id={req.id} search={search} />
           </p>
           <h1 className="mt-2 font-serif text-3xl leading-tight font-semibold text-balance">{req.title}</h1>
           <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -129,6 +133,32 @@ export function RequirementPage({ id }: { id: string }) {
         <Facts title="File"><code className="text-muted break-all">{req.file}</code></Facts>
       </aside>
     </article>
+  )
+}
+
+/**
+ * Previous and next links through the list the requirement was opened from, which the URL's search
+ * carries. They keep that search, so stepping stays in the same list.
+ */
+// SpecAI: UI-021
+export function Stepper({ id, search }: { id: string; search: string }) {
+  const { index } = useSpec()
+  const runSearch = useMemo(() => createSearch(index), [index])
+  const { previous, next, position, total } = neighbours(index, runSearch, search, id)
+  const step = 'border-rule bg-surface text-ink inline-flex items-center rounded-md border p-1 hover:border-[var(--accent)]'
+  const off = 'border-rule text-muted inline-flex items-center rounded-md border p-1 opacity-40'
+  return (
+    <nav aria-label="Requirements in this list" className="ml-auto flex items-center gap-2">
+      <Link href={`/${search}`} className="tabular-nums hover:underline" title="Back to the list">
+        {position ? `${position} of ${total}` : `Not in this list of ${total}`}
+      </Link>
+      {previous
+        ? <Link href={paths.requirement(previous.id) + search} className={step} title={`Previous: ${previous.id} ${previous.title}`} aria-label={`Previous: ${previous.id}`}><ChevronLeft {...smallIcon} /></Link>
+        : <span className={off} aria-hidden><ChevronLeft {...smallIcon} /></span>}
+      {next
+        ? <Link href={paths.requirement(next.id) + search} className={step} title={`Next: ${next.id} ${next.title}`} aria-label={`Next: ${next.id}`}><ChevronRight {...smallIcon} /></Link>
+        : <span className={off} aria-hidden><ChevronRight {...smallIcon} /></span>}
+    </nav>
   )
 }
 

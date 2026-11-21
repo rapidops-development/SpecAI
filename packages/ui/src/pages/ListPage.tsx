@@ -29,6 +29,8 @@ export function ListPage({ search, area }: { search: string; area?: string }) {
   const groups = groupRequirements(index, matches, state.group)
   const update = (next: Partial<ListState>, replace = false) =>
     navigate(location.pathname + serializeListState({ ...state, ...next }), { replace })
+  // The row links carry the list, so the requirement page can step through it.
+  const listQuery = serializeListState({ ...state, filters: scoped })
   const active = facets.reduce((n, f) => n + (f === 'area' && area ? 0 : state.filters[f].length), 0)
 
   return (
@@ -91,7 +93,7 @@ export function ListPage({ search, area }: { search: string; area?: string }) {
         groups.map((group) =>
           state.group === 'none' ? (
             <ul key={group.key} className="border-rule bg-surface mt-3 rounded-md border px-3">
-              {group.items.map((req) => <RequirementRow key={req.id} req={req} />)}
+              {group.items.map((req) => <RequirementRow key={req.id} req={req} list={listQuery} />)}
             </ul>
           ) : (
             <details key={group.key} open className="group/section mt-5">
@@ -101,7 +103,7 @@ export function ListPage({ search, area }: { search: string; area?: string }) {
                 <span className="text-muted text-sm tabular-nums">{group.items.length}</span>
               </summary>
               <ul className="border-rule bg-surface mt-2 rounded-md border px-3">
-                {group.items.map((req) => <RequirementRow key={req.id} req={req} />)}
+                {group.items.map((req) => <RequirementRow key={req.id} req={req} list={listQuery} />)}
               </ul>
             </details>
           ),

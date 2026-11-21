@@ -1,0 +1,49 @@
+specai: "0.2"
+id: UI-021
+title: Step through a list of requirements
+status: proposed
+statement: >-
+  When the user opens a [[requirement]] from a list of requirements, the requirement page shall link to
+  the previous and next requirements in that list, in the order the list showed them.
+acceptance:
+  - The links keep the list's search, filters and grouping, so following them stays in the same list.
+  - A requirement opened without a list steps through all requirements in the order the list page shows them.
+  - The first requirement has no previous link and the last has no next link.
+  - If the requirement has left the list, such as after approving it from a list of proposed requirements, then the links go to the nearest requirements in the list before and after it.
+components: [UI]
+related: [UI-002, UI-003]
+rationale: |
+  A reviewer works through a list, such as every proposed requirement in one area, one requirement at
+  a time. Going back to the list between each one is slow, and loses their place when a status change
+  drops the requirement out of the list.
+tests:
+  - id: UI-021-T1
+    title: Previous and next follow the list
+    status: proposed
+    level: unit
+    given:
+      - A list filtered by status and grouped by area
+    when: The user opens a requirement in the middle of the list
+    then:
+      - The previous and next links go to the requirements either side of it in the list
+      - Both links keep the list's search, filters and grouping
+  - id: UI-021-T2
+    title: Opened without a list
+    status: proposed
+    level: unit
+    given:
+      - No search, filters or grouping
+    when: The user opens the first, then the last requirement
+    then:
+      - The first has a next link and no previous link
+      - The last has a previous link and no next link
+  - id: UI-021-T3
+    title: Requirement has left the list
+    status: proposed
+    level: unit
+    given:
+      - A list of proposed requirements
+      - A requirement in it that has since been approved
+    when: Its page is shown
+    then:
+      - The previous and next links go to the nearest proposed requirements before and after it

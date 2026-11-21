@@ -34,7 +34,7 @@ export function App() {
     <SpecProvider index={index}>
       <Layout route={route} connection={connection}>
         {route.page === 'list' && <ListPage search={search} />}
-        {route.page === 'requirement' && <RequirementPage id={route.id} />}
+        {route.page === 'requirement' && <RequirementPage id={route.id} search={search} />}
         {route.page === 'area' && <AreaPage folder={route.folder} search={search} />}
         {route.page === 'glossary' && <GlossaryPage />}
         {route.page === 'term' && <TermPage slug={route.slug} />}
