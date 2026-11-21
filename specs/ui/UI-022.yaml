@@ -1,0 +1,34 @@
+specai: "0.2"
+id: UI-022
+title: Edit forms wait for the schema
+status: proposed
+statement: >-
+  Until the schema has loaded, each edit form shall show, in place of its fields, either that the form
+  is loading or that the schema could not be loaded, with a button that loads it again.
+components: [UI]
+related: [UI-013]
+rationale: |
+  The forms are built from the schema ([[UI-013]]), so they have no fields until it arrives. A form
+  with only its save button looks broken; a failed load that is never retried leaves every form empty
+  until the page is reloaded.
+tests:
+  - id: UI-022-T1
+    title: Loading, then the fields
+    status: proposed
+    level: unit
+    given:
+      - A schema that has not arrived yet
+    when: An edit form is shown
+    then:
+      - The form says it is loading
+      - The fields appear once the schema arrives
+  - id: UI-022-T2
+    title: A failed load can be retried
+    status: proposed
+    level: unit
+    given:
+      - A server that fails the first schema request and answers the second
+    when: An edit form is shown and the user presses the button to load it again
+    then:
+      - The form first says the schema could not be loaded
+      - The fields appear after the retry

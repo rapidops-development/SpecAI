@@ -11,6 +11,8 @@ export function useSpecIndex(): { index?: SpecIndex; error?: string; connection:
 
   useEffect(() => {
     let cancelled = false
+    // Ask for the schema first: the server answers requests in turn, and building the index takes a while.
+    loadSchemas().catch(() => {})
     const load = async () => {
       try {
         const res = await fetch('/api/index')
@@ -26,9 +28,12 @@ export function useSpecIndex(): { index?: SpecIndex; error?: string; connection:
     }
     void load()
     const events = new EventSource('/api/events')
+    let opened = false
     events.onopen = () => {
       setConnection('live')
-      void load()
+      // The first load is already on its way; reload only after a reconnect, when changes may have been missed.
+      if (opened) void load()
+      opened = true
     }
     events.onerror = () => setConnection('reconnecting')
     events.addEventListener('change', () => void load())
@@ -75,8 +80,16 @@ export function isSaveFailure(error: unknown): error is SaveFailure {
 
 let schemas: Promise<Record<string, never>> | undefined
 
-/** The schema documents, fetched once. */
+/** The schema documents, fetched once. A failed fetch is forgotten, so the next call tries again. */
 export function loadSchemas(): Promise<Record<string, never>> {
-  schemas ??= fetch('/api/schema').then((r) => r.json())
+  schemas ??= fetch('/api/schema')
+    .then((r) => {
+      if (!r.ok) throw new Error(`The server answered ${r.status}`)
+      return r.json()
+    })
+    .catch((error: unknown) => {
+      schemas = undefined
+      throw error
+    })
   return schemas
 }

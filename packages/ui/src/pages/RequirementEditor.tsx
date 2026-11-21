@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { isSaveFailure, type SaveFailure, save } from '../api.ts'
 import { buttonClass, primaryClass, quietClass, smallIcon } from '../components/forms/controls.ts'
 import { FieldInput } from '../components/forms/FieldInput.tsx'
-import { useFields } from '../components/forms/TestsInput.tsx'
+import { FieldsPending, useFields } from '../components/forms/TestsInput.tsx'
 import { announce, SaveError } from '../components/SaveFeedback.tsx'
 import { useSpec } from '../components/SpecContext.tsx'
 import { assignTestIds, cleanData } from '../lib/fields.ts'
@@ -41,7 +41,7 @@ export function RequirementEditor({ id, area }: { id?: string; area?: string }) 
 
 function RequirementForm(props: { existing?: IndexedRequirement; folder: string; areaName: string; onRaw: () => void }) {
   const { existing, folder, areaName, onRaw } = props
-  const fields = useFields('requirement')
+  const { fields, pending } = useFields('requirement')
   const [draft, setDraft] = useState<Draft>(() => {
     if (!existing) return { title: '', status: 'draft', statement: '' }
     const { area: _a, file: _f, hash: _h, ...data } = existing
@@ -90,6 +90,7 @@ function RequirementForm(props: { existing?: IndexedRequirement; folder: string;
       )}
       {!existing && <p className="text-muted mt-2">It gets the next free ID in {areaName} and starts as a draft.</p>}
 
+      {pending && <FieldsPending pending={pending} />}
       {sections.map((section) => {
         const inSection = fields.filter((f) => (sectionOf[f.key] ?? 'Where it applies') === section)
         if (inSection.length === 0) return null
@@ -108,7 +109,7 @@ function RequirementForm(props: { existing?: IndexedRequirement; folder: string;
       {failure && <SaveError failure={failure} onReload={() => location.reload()} />}
 
       <div className="bg-paper border-rule sticky bottom-0 mt-8 flex flex-wrap items-center gap-3 border-t py-4">
-        <button type="submit" className={primaryClass} disabled={saving}><Check {...smallIcon} />{saving ? 'Saving' : existing ? 'Save changes' : 'Create requirement'}</button>
+        <button type="submit" className={primaryClass} disabled={saving || !!pending}><Check {...smallIcon} />{saving ? 'Saving' : existing ? 'Save changes' : 'Create requirement'}</button>
         <Link href={back} className={buttonClass}><X {...smallIcon} />Cancel</Link>
         {existing && <button type="button" className={`${quietClass} ml-auto`} onClick={onRaw}><FileCode {...smallIcon} />Edit the YAML instead</button>}
       </div>
