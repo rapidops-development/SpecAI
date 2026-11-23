@@ -25,7 +25,8 @@ export function ListPage({ search, area }: { search: string; area?: string }) {
   const state = parseListState(search)
   const runSearch = useMemo(() => createSearch(index), [index])
   const scoped = area ? { ...state.filters, area: [area] } : state.filters
-  const matches = useMemo(() => applyFilters(runSearch(state.q), scoped, index), [runSearch, state.q, JSON.stringify(scoped), index])
+  const found = useMemo(() => runSearch(state.q), [runSearch, state.q])
+  const matches = useMemo(() => applyFilters(found, scoped, index), [found, JSON.stringify(scoped), index])
   const groups = groupRequirements(index, matches, state.group)
   const update = (next: Partial<ListState>, replace = false) =>
     navigate(location.pathname + serializeListState({ ...state, ...next }), { replace })
@@ -69,7 +70,7 @@ export function ListPage({ search, area }: { search: string; area?: string }) {
             key={facet}
             facet={facet}
             selected={state.filters[facet]}
-            options={facetOptions(index, matches, facet)}
+            options={facetOptions(index, found, scoped, facet)}
             onChange={(values) => update({ filters: { ...state.filters, [facet]: values } })}
           />
         ))}

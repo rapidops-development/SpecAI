@@ -29,10 +29,25 @@ describe('requirement list', () => {
   })
 
   it('counts facet values, listing every component from specai.yaml', () => {
-    expect(facetOptions(index, index.requirements, 'component')).toEqual([
+    expect(facetOptions(index, index.requirements, emptyFilters(), 'component')).toEqual([
       { value: 'Library.API', label: 'Library.API', count: 1 },
       { value: 'Library.Web', label: 'Library.Web', count: 1 },
     ])
+  })
+
+  it('[UI-023-T1] counts each option with its own filter left out and the others kept', () => {
+    // Approved and Library.API together match nothing, so counts within the filtered list would all be 0.
+    const filters = { ...emptyFilters(), status: ['approved'], component: ['Library.API'] }
+    const counts = (facet: 'status' | 'component') =>
+      Object.fromEntries(facetOptions(index, index.requirements, filters, facet).map((o) => [o.value, o.count]))
+    expect(counts('status')).toEqual({ draft: 0, proposed: 1, approved: 0, deprecated: 0, removed: 0 })
+    expect(counts('component')).toEqual({ 'Library.API': 0, 'Library.Web': 1 })
+  })
+
+  it('[UI-024-T1] offers every status and test level, including unused ones', () => {
+    const options = (facet: 'status' | 'level') => facetOptions(index, index.requirements, emptyFilters(), facet)
+    expect(options('status').map((o) => o.value)).toEqual(['draft', 'proposed', 'approved', 'deprecated', 'removed'])
+    expect(options('level').find((o) => o.value === 'manual')).toEqual({ value: 'manual', label: 'Manual', count: 0 })
   })
 
   it('[UI-003-T1] round-trips search, filters and grouping through the URL', () => {
@@ -78,6 +93,6 @@ describe('coverage', () => {
   })
 
   it('offers no coverage filter when the server did not scan test code', () => {
-    expect(facetOptions(index, index.requirements, 'coverage')).toEqual([])
+    expect(facetOptions(index, index.requirements, emptyFilters(), 'coverage')).toEqual([])
   })
 })

@@ -1,0 +1,28 @@
+specai: "0.2"
+id: UI-023
+title: Filter option counts
+status: proposed
+statement: >-
+  The UI shall show beside each filter option how many [[requirement|requirements]] the list would
+  show if that option were the only one chosen in its filter, keeping the search and the other filters.
+acceptance:
+  - Choosing options in a filter leaves the counts in that same filter unchanged.
+  - Choosing options in one filter changes the counts in the other filters.
+components: [UI]
+related: [UI-002]
+rationale: |
+  A reviewer who picks one status still wants to see how many requirements each other status holds,
+  so they can add it to the filter. Counting within the filtered list showed every other option of
+  the same filter as 0.
+tests:
+  - id: UI-023-T1
+    title: Counts ignore their own filter
+    status: proposed
+    level: unit
+    given:
+      - Requirements with different statuses and components
+      - A status and a component filter, each with one option chosen
+    when: The filter options are shown
+    then:
+      - Each status option counts the requirements with that status and the chosen component
+      - Each component option counts the requirements with that component and the chosen status

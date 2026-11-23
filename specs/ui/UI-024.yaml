@@ -1,0 +1,27 @@
+specai: "0.2"
+id: UI-024
+title: Offer every fixed filter option
+status: proposed
+statement: >-
+  The UI shall offer every requirement status and every test level as a filter option, including those
+  no [[requirement]] has.
+acceptance:
+  - Where the server knows the component checkouts, every [[coverage]] value and every [[implementation status]] is offered too.
+  - An option no requirement has shows a count of 0.
+components: [UI]
+related: [UI-002, UI-014, UI-019]
+rationale: |
+  These filters have a fixed set of values. Offering only the values some requirement has hides
+  options, such as approved when nothing is approved yet, and makes the filter look different from
+  one spec tree to the next.
+tests:
+  - id: UI-024-T1
+    title: Unused statuses and levels are offered
+    status: proposed
+    level: unit
+    given:
+      - Requirements with no approved, deprecated or removed ones, and no manual tests
+    when: The status and test level filters are shown
+    then:
+      - The status filter offers draft, proposed, approved, deprecated and removed, in that order
+      - The test level filter offers manual with a count of 0

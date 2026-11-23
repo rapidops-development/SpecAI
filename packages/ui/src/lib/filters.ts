@@ -98,12 +98,39 @@ export function applyFilters(reqs: IndexedRequirement[], filters: Record<Facet, 
   )
 }
 
-/** Every value of a facet across the index, in display order, with how many requirements have it. */
-export function facetOptions(index: SpecIndex, reqs: IndexedRequirement[], facet: Facet): { value: string; label: string; count: number }[] {
+/** The values a facet always offers, whether or not a requirement has them. */
+function fixedValues(index: SpecIndex, facet: Facet): string[] {
+  switch (facet) {
+    case 'status':
+      return statusOrder
+    case 'level':
+      return levelOrder
+    case 'coverage':
+      return index.trace ? coverageOrder : []
+    case 'implementation':
+      return index.trace?.implementation ? implementationOrder : []
+    case 'component':
+      return (index.config?.components ?? []).map((c) => c.name)
+    default:
+      return []
+  }
+}
+
+/**
+ * Every value of a facet, in display order. Each counts the requirements the list would show with
+ * that value the only one chosen in the facet: the facet's own selection is left out, the others kept.
+ */
+// SpecAI: UI-023, UI-024
+export function facetOptions(
+  index: SpecIndex,
+  reqs: IndexedRequirement[],
+  filters: Record<Facet, string[]>,
+  facet: Facet,
+): { value: string; label: string; count: number }[] {
   const counts = new Map<string, number>()
-  for (const req of reqs) for (const v of facetValues(req, facet, index)) counts.set(v, (counts.get(v) ?? 0) + 1)
-  const all = new Set<string>(index.requirements.flatMap((r) => facetValues(r, facet, index)))
-  if (facet === 'component') for (const c of index.config?.components ?? []) all.add(c.name)
+  for (const req of applyFilters(reqs, { ...filters, [facet]: [] }, index))
+    for (const v of facetValues(req, facet, index)) counts.set(v, (counts.get(v) ?? 0) + 1)
+  const all = new Set<string>([...fixedValues(index, facet), ...index.requirements.flatMap((r) => facetValues(r, facet, index))])
   return sortValues(index, facet, [...all]).map((value) => ({ value, label: valueLabel(index, facet, value), count: counts.get(value) ?? 0 }))
 }
 
