@@ -1,0 +1,6 @@
+specai: "0.2"
+term: Knowledge graph
+aliases: [knowledge graphs]
+definition: >-
+  A picture of a [[spec tree]]'s live [[requirement|requirements]] as points, clustered by [[area]],
+  with a line for each link between two requirements. Deprecated and removed requirements are left out.

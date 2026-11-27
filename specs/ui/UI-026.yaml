@@ -1,0 +1,48 @@
+specai: "0.2"
+id: UI-026
+title: Knowledge graph on a requirement page
+status: proposed
+statement: >-
+  The UI shall show a small [[knowledge graph]] at the foot of a [[requirement]] page's details,
+  highlighting the requirement and the requirements linked to it, that the user can expand into a
+  dialog filling most of the window.
+acceptance:
+  - Choosing a point in the small graph opens that requirement's page.
+  - The dialog opens with the page's requirement selected.
+  - The dialog closes with its close button or Escape, leaving the page as it was.
+  - On the page of a deprecated or removed requirement, the small graph says it leaves the requirement out.
+components: [UI]
+related: [UI-025, UI-029, UI-030]
+rationale: |
+  The details beside a requirement list what it refines, what it relates to and what links to it. The
+  small graph shows the same relations in place, among the requirements around them, so a reviewer
+  sees where the requirement sits without leaving the page; the dialog gives room to explore.
+tests:
+  - id: UI-026-T1
+    title: Small graph follows the page
+    status: proposed
+    level: unit
+    given:
+      - A requirement linked to two others
+    when: Its requirement page is shown
+    then:
+      - The small graph highlights the requirement and the two linked requirements
+  - id: UI-026-T2
+    title: Choosing a point opens its page
+    status: proposed
+    level: unit
+    given:
+      - The small graph on a requirement page
+    when: The user chooses another requirement's point
+    then:
+      - That requirement's page is shown
+  - id: UI-026-T3
+    title: Expand and close
+    status: proposed
+    level: unit
+    given:
+      - The small graph on a requirement page
+    when: The user expands it, then presses Escape
+    then:
+      - A dialog shows the knowledge graph with that requirement selected
+      - After Escape the dialog is gone and the requirement page is still shown

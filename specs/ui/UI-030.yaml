@@ -1,0 +1,22 @@
+specai: "0.2"
+id: UI-030
+title: Open the knowledge graph from any page
+status: proposed
+statement: >-
+  When the user chooses the knowledge graph in the navigation, the UI shall open the expanded
+  [[knowledge graph]], centred on the requirement or [[area]] the page shows, or on the whole graph.
+components: [UI]
+related: [UI-026, UI-029]
+rationale: |
+  Pages other than a requirement's, such as an area's list, have no details beside them for a small
+  graph, but a reviewer looking over an area still wants to see how it clusters and what it links to.
+tests:
+  - id: UI-030-T1
+    title: Opened from an area page
+    status: proposed
+    level: unit
+    given:
+      - An area page
+    when: The user chooses the knowledge graph in the navigation
+    then:
+      - The expanded knowledge graph opens, centred on that area, with the area chosen in the legend

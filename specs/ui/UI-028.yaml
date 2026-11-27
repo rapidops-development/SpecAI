@@ -1,0 +1,38 @@
+specai: "0.2"
+id: UI-028
+title: Place related requirements close together
+status: proposed
+statement: >-
+  Within an [[area]]'s cluster, the [[knowledge graph]] shall place requirements nearer each other the
+  more strongly they are related.
+acceptance:
+  - Requirements joined by a link are related most strongly.
+  - Requirements that link to the same [[glossary term|glossary terms]] or list the same [[component|components]] are related more weakly, and a term or component counts for more the fewer requirements use it.
+  - Requirements related only by shared terms or components are not joined by a line.
+components: [UI]
+related: [UI-025, UI-027]
+rationale: |
+  Requirements that describe the same part of the software link to each other and use the same rare
+  words. Placing them together shows the groups within an area, and requirements that may overlap.
+  A term nearly every requirement uses, such as the word for a requirement itself, says nothing about
+  which ones belong together.
+tests:
+  - id: UI-028-T1
+    title: Linked requirements sit closer
+    status: proposed
+    level: unit
+    given:
+      - An area with several requirements, two of them related to each other and two related to nothing
+    when: The knowledge graph is laid out
+    then:
+      - The two related requirements are nearer each other than the two unrelated ones
+  - id: UI-028-T2
+    title: Rare shared terms count for more
+    status: proposed
+    level: unit
+    given:
+      - Two requirements sharing a term that only they use
+      - Two requirements sharing only a term that every requirement uses
+    when: How strongly the requirements are related is worked out
+    then:
+      - The pair sharing the rare term is related more strongly than the pair sharing the common term

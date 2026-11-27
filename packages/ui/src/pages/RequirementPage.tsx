@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, OctagonAlert, Pencil } from 'lucide-react'
 import { useMemo } from 'react'
+import { GraphPanel } from '../components/graph/GraphPanel.tsx'
 import { Markdown } from '../components/Markdown.tsx'
 import { PageLinks } from '../components/PageLinks.tsx'
 import { ProblemList } from '../components/Problems.tsx'
@@ -131,6 +132,7 @@ export function RequirementPage({ id, search = '' }: { id: string; search?: stri
         {req.related && <Facts title="Related"><PageLinks keys={req.related} /></Facts>}
         <Facts title="Linked from"><PageLinks keys={index.backlinks[req.id] ?? []} empty="Nothing links here yet." /></Facts>
         <Facts title="File"><code className="text-muted break-all">{req.file}</code></Facts>
+        <GraphPanel id={req.id} />
       </aside>
     </article>
   )

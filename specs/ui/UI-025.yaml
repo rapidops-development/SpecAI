@@ -1,0 +1,29 @@
+specai: "0.2"
+id: UI-025
+title: Knowledge graph contents
+status: proposed
+statement: >-
+  The [[knowledge graph]] shall show each [[requirement]] that is not deprecated or removed as a
+  point, and draw a line between two of them for each link that joins them.
+acceptance:
+  - A link is a `related` entry, a `parent`, or a `[[link]]` to the other requirement in a requirement's text or its test definitions.
+  - Two requirements joined by more than one link have one line.
+  - Links to deprecated, removed or unknown requirements draw no line.
+components: [UI]
+related: [UI-026, UI-027, UI-028, UI-029, UI-030]
+rationale: |
+  Requirements reference each other through `related`, `parent` and links in their text. Seeing those
+  references at once shows which requirements depend on each other, which a list cannot. Deprecated
+  and removed requirements would crowd out the ones that still apply.
+tests:
+  - id: UI-025-T1
+    title: Points and lines
+    status: proposed
+    level: unit
+    given:
+      - A requirement with a related entry, another with a parent, and another that links to a third in its statement and in a test definition
+      - A deprecated requirement that the others name in related
+    when: The knowledge graph is built
+    then:
+      - Every requirement except the deprecated one is a point
+      - There is one line for each pair joined by a link, and none to the deprecated requirement
