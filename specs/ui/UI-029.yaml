@@ -1,0 +1,46 @@
+specai: "0.2"
+id: UI-029
+title: Explore the knowledge graph
+status: proposed
+statement: >-
+  When the user selects a requirement in the expanded [[knowledge graph]], the UI shall centre the graph
+  on it, highlight the requirements linked to it, and show its title and status with a link to its page
+  and the requirements linked and most closely related to it.
+acceptance:
+  - Choosing a linked or related requirement from that list selects it in turn, so the user can move through the graph.
+  - The user can find a requirement by ID or title, pan and zoom the graph, and centre it on an area by choosing the area in the legend.
+  - Opening the requirement's page closes the dialog.
+components: [UI]
+related: [UI-026, UI-028, UI-030]
+rationale: |
+  Following links one requirement at a time, while seeing where each sits in the whole, is how a
+  reviewer finds the requirements a change touches and the areas that describe the same thing.
+tests:
+  - id: UI-029-T1
+    title: Selecting a requirement
+    status: proposed
+    level: unit
+    given:
+      - The expanded knowledge graph, and a requirement linked to two others
+    when: The user selects the requirement
+    then:
+      - Its title, status and a link to its page are shown
+      - The two linked requirements are highlighted and listed
+  - id: UI-029-T2
+    title: Moving through the graph
+    status: proposed
+    level: unit
+    given:
+      - A selected requirement with a linked requirement listed
+    when: The user chooses the linked requirement from the list
+    then:
+      - The linked requirement becomes the selected one, with its own links listed
+  - id: UI-029-T3
+    title: Finding a requirement
+    status: proposed
+    level: unit
+    given:
+      - The expanded knowledge graph
+    when: The user types part of a requirement's title into the find box and picks the match
+    then:
+      - That requirement is selected

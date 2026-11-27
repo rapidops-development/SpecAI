@@ -20,6 +20,10 @@
   --s-removed: #9f3a2c;
   --danger: #b42318;
   --warn: #8a5300;
+  /* Knowledge graph areas: a validated categorical order, then grey for any area past the eighth. */
+  --graph-1: #2a78d6; --graph-2: #eb6834; --graph-3: #1baf7a; --graph-4: #eda100;
+  --graph-5: #e87ba4; --graph-6: #008300; --graph-7: #6250d6; --graph-8: #e34948;
+  --graph-other: #8a9396;
   color-scheme: light;
 }
 
@@ -41,6 +45,9 @@
     --s-removed: #f08a76;
     --danger: #f38b7d;
     --warn: #e3b341;
+    --graph-1: #3987e5; --graph-2: #d95926; --graph-3: #199e70; --graph-4: #c98500;
+    --graph-5: #d55181; --graph-6: #0ca30c; --graph-7: #9085e9; --graph-8: #e66767;
+    --graph-other: #7d8597;
     color-scheme: dark;
   }
 }
@@ -60,6 +67,9 @@
   --s-removed: #f08a76;
   --danger: #f38b7d;
   --warn: #e3b341;
+  --graph-1: #3987e5; --graph-2: #d95926; --graph-3: #199e70; --graph-4: #c98500;
+  --graph-5: #d55181; --graph-6: #0ca30c; --graph-7: #9085e9; --graph-8: #e66767;
+  --graph-other: #7d8597;
   color-scheme: dark;
   }
 

@@ -1,0 +1,36 @@
+specai: "0.2"
+id: UI-027
+title: Cluster the knowledge graph by area
+status: proposed
+statement: >-
+  The [[knowledge graph]] shall place each [[area]]'s requirements in a separate labelled cluster, with
+  areas whose requirements are more strongly related placed nearer each other.
+acceptance:
+  - Clusters do not overlap, and every point lies inside its area's cluster.
+  - Each cluster shows its area's name and has its own colour, shown in a legend.
+components: [UI]
+related: [UI-025, UI-028]
+rationale: |
+  Areas that describe neighbouring parts of the software link to each other more. Placing them near
+  each other shows which areas belong together, and a lone area far from the rest shows one that
+  links to nothing.
+tests:
+  - id: UI-027-T1
+    title: Separate clusters
+    status: proposed
+    level: unit
+    given:
+      - Three areas with several requirements each
+    when: The knowledge graph is laid out
+    then:
+      - No two area clusters overlap
+      - Every requirement's point lies inside its own area's cluster
+  - id: UI-027-T2
+    title: Related areas sit nearer
+    status: proposed
+    level: unit
+    given:
+      - Three areas, where many requirements in the first link to the second and none link to the third
+    when: The knowledge graph is laid out
+    then:
+      - The first area's cluster is nearer the second's than the third's

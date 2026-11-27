@@ -1,10 +1,13 @@
-import { BookOpen, Folder, ListChecks, TriangleAlert, Unplug } from 'lucide-react'
+import { BookOpen, Folder, ListChecks, Network, TriangleAlert, Unplug } from 'lucide-react'
+import { useState } from 'react'
 import type { Connection } from '../api.ts'
 import { Link, type Route } from '../router.tsx'
 import { useSpec } from './SpecContext.tsx'
 import { LinkPreview } from './LinkPreview.tsx'
 import { ThemeSwitch } from './ThemeSwitch.tsx'
 import { icon, smallIcon } from './forms/controls.ts'
+import { GraphDialog } from './graph/GraphDialog.tsx'
+import { graphFocus } from './graph/GraphPanel.tsx'
 
 export function Layout({ route, connection, children }: { route: Route; connection: Connection; children: React.ReactNode }) {
   const { index } = useSpec()
@@ -13,6 +16,8 @@ export function Layout({ route, connection, children }: { route: Route; connecti
   const current = (match: boolean) => (match ? 'bg-accent-soft text-ink font-medium' : 'text-muted hover:text-ink')
   const item = 'flex items-center gap-2 rounded px-2 py-1.5 text-sm'
   const count = 'ml-auto pl-3 text-xs tabular-nums'
+  const [graphOpen, setGraphOpen] = useState(false)
+  const focus = graphFocus(route)
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
@@ -53,6 +58,13 @@ export function Layout({ route, connection, children }: { route: Route; connecti
               </span>
             </Link>
           </li>
+          {/* SpecAI: UI-030 */}
+          <li>
+            <button type="button" className={`${item} ${current(graphOpen)} w-full`} onClick={() => setGraphOpen(true)}>
+              <Network {...icon} />
+              <span>Knowledge graph</span>
+            </button>
+          </li>
         </ul>
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 px-2 md:mt-auto md:flex-col md:items-center md:px-0 md:pt-6">
           <ThemeSwitch />
@@ -63,6 +75,7 @@ export function Layout({ route, connection, children }: { route: Route; connecti
         </div>
       </nav>
       <main className="min-w-0 flex-1 px-4 py-6 md:px-10 md:py-8">{children}</main>
+      {graphOpen && <GraphDialog initialSelected={focus.selected} initialArea={focus.area} onClose={() => setGraphOpen(false)} />}
       <LinkPreview />
     </div>
   )

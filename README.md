@@ -108,6 +108,11 @@ change statuses. Saves keep the file's comments and layout, are refused when the
 invalid or when the file changed on disk since you opened it, and never touch git: review and commit
 the changes yourself.
 
+The knowledge graph shows the live requirements as points clustered by area, with a line for each
+link between two of them; related areas sit nearer each other, and within an area so do requirements
+that link to each other or share rare glossary terms and components. A small graph sits beside each
+requirement; expand it, or choose Knowledge graph in the navigation, to explore the whole graph.
+
 ## Using SpecAI with AI agents
 
 Agents find the specs through the `AGENTS.md` (or `CLAUDE.md`) of each repo whose behaviour a spec
