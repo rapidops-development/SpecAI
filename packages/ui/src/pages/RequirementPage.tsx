@@ -91,6 +91,7 @@ export function RequirementPage({ id, search = '' }: { id: string; search?: stri
       </div>
 
       <aside className="space-y-6 text-sm lg:pt-2">
+        <GraphPanel id={req.id} />
         {index.trace?.implementation && (
           <Facts title="Implementation">
             <Link href={`/?implementation=${index.trace.implementation[req.id]}`} className="hover:underline">{implementationLabels[index.trace.implementation[req.id]]}</Link>
@@ -132,7 +133,6 @@ export function RequirementPage({ id, search = '' }: { id: string; search?: stri
         {req.related && <Facts title="Related"><PageLinks keys={req.related} /></Facts>}
         <Facts title="Linked from"><PageLinks keys={index.backlinks[req.id] ?? []} empty="Nothing links here yet." /></Facts>
         <Facts title="File"><code className="text-muted break-all">{req.file}</code></Facts>
-        <GraphPanel id={req.id} />
       </aside>
     </article>
   )
