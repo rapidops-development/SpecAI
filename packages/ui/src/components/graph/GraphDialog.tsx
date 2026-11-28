@@ -44,7 +44,7 @@ export function GraphDialog(props: { initialSelected?: string; initialArea?: str
       ref={dialog}
       aria-labelledby="graph-title"
       data-no-preview
-      className="bg-paper text-ink border-rule m-auto h-[90vh] w-[94vw] max-w-none overflow-hidden rounded-lg border p-0 shadow-2xl backdrop:bg-black/50"
+      className="graph-dialog bg-paper text-ink border-rule m-auto h-[90vh] w-[94vw] max-w-none overflow-hidden rounded-lg border p-0 shadow-2xl backdrop:bg-black/50"
       onCancel={(e) => {
         e.preventDefault()
         props.onClose()
