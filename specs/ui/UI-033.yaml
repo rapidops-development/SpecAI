@@ -1,0 +1,50 @@
+specai: "0.2"
+id: UI-033
+title: Animate the knowledge graph
+status: proposed
+statement: >-
+  When the [[knowledge graph]] appears, or what it shows changes, the UI shall move its points, lines
+  and view smoothly to their new state, unless the system asks for reduced motion.
+acceptance:
+  - When a graph appears, each area's cluster fades in and its points spread out from the area's centre to their places, one area after another; lines and labels follow once the points have arrived.
+  - When the layout changes, such as after a file is saved, points glide to their new places.
+  - Selecting a requirement or an area flies the view to it; the selected requirement's lines draw out from it, and a ring pulses around it.
+  - Points grow, shrink and fade smoothly as the selection changes, and grow under the pointer.
+  - The expanded dialog fades and scales in.
+  - Zooming follows the pointer quickly, and dragging moves the view at once, without easing.
+  - Under reduced motion, everything appears in its final place and nothing pulses.
+components: [UI]
+related: [UI-026, UI-029]
+rationale: |
+  Motion shows where things come from and go to: which area a point belongs to as it spreads out,
+  where the view went when a requirement was selected, which lines belong to it. Some people find
+  motion distracting or uncomfortable, and say so through their system's reduced motion setting.
+tests:
+  - id: UI-033-T1
+    title: Points spread out from their area
+    status: proposed
+    level: unit
+    given:
+      - A knowledge graph with two areas
+    when: The graph appears
+    then:
+      - Each point is first drawn at its area's centre
+      - Then each point is drawn at its own place
+  - id: UI-033-T2
+    title: Reduced motion
+    status: proposed
+    level: unit
+    given:
+      - A system that asks for reduced motion
+    when: The graph appears
+    then:
+      - Each point is drawn at its own place from the start
+  - id: UI-033-T3
+    title: Lines draw out from the selected requirement
+    status: proposed
+    level: unit
+    given:
+      - A requirement linked to two others
+    when: The user selects it
+    then:
+      - Its two lines are drawn out, each starting at the selected requirement
