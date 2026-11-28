@@ -1,0 +1,39 @@
+specai: "0.2"
+id: UI-034
+title: Status breakdown in the navigation
+status: proposed
+statement: >-
+  The UI shall show in the navigation one bar for [[requirement|requirements]] and one for test
+  definitions, each split by status in proportion to how many have each status.
+acceptance:
+  - Each bar is labelled with its total, and lists every status it holds with its name and count.
+  - Each part of a bar names its status, count and share of the total when the pointer rests on it.
+  - Deprecated and removed parts are hatched as well as coloured, so no status relies on colour alone.
+  - Choosing a requirement status in its bar opens the list of requirements with that status.
+  - The bars count every requirement and test definition in the spec tree, whatever the lists hide.
+components: [UI]
+related: [UI-002]
+rationale: |
+  A reviewer wants to know how far review has got: how much is still proposed or draft, and how much
+  is approved. Test definitions are reviewed separately from their requirements, so they get a bar
+  of their own.
+tests:
+  - id: UI-034-T1
+    title: Bars split by status
+    status: proposed
+    level: unit
+    given:
+      - Three proposed requirements and one deprecated, with five test definitions, four proposed and one approved
+    when: The navigation is shown
+    then:
+      - The requirements bar has a proposed part three times the deprecated part, and lists Proposed 3 and Deprecated 1
+      - The test definitions bar lists Proposed 4 and Approved 1, with a total of 5
+  - id: UI-034-T2
+    title: Choosing a requirement status
+    status: proposed
+    level: unit
+    given:
+      - The requirements bar
+    when: The user chooses Deprecated in it
+    then:
+      - The list of deprecated requirements is shown

@@ -4,6 +4,7 @@ import type { Connection } from '../api.ts'
 import { Link, type Route } from '../router.tsx'
 import { useSpec } from './SpecContext.tsx'
 import { LinkPreview } from './LinkPreview.tsx'
+import { StatusBars } from './StatusBars.tsx'
 import { ThemeSwitch } from './ThemeSwitch.tsx'
 import { icon, smallIcon } from './forms/controls.ts'
 import { GraphDialog } from './graph/GraphDialog.tsx'
@@ -66,6 +67,9 @@ export function Layout({ route, connection, children }: { route: Route; connecti
             </button>
           </li>
         </ul>
+        <div className="mt-6 hidden md:block">
+          <StatusBars />
+        </div>
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 px-2 md:mt-auto md:flex-col md:items-center md:px-0 md:pt-6">
           <ThemeSwitch />
           {/* Say nothing while live; speak up only when the page may be out of date. */}
