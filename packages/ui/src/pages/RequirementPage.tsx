@@ -7,7 +7,7 @@ import { ProblemList } from '../components/Problems.tsx'
 import { useSpec } from '../components/SpecContext.tsx'
 import { buttonClass, smallIcon } from '../components/forms/controls.ts'
 import { Status } from '../components/Status.tsx'
-import { StatusButtons } from '../components/StatusButtons.tsx'
+import { ApproveAllTests, StatusButtons } from '../components/StatusButtons.tsx'
 import { Text } from '../components/Text.tsx'
 import { Link, paths } from '../router.tsx'
 import { coverageLabels, implementationLabels } from '../lib/filters.ts'
@@ -78,7 +78,10 @@ export function RequirementPage({ id, search = '' }: { id: string; search?: stri
               No test definitions yet. <Link href={paths.editRequirement(req.id)} className="text-accent underline underline-offset-2">Add one</Link> to say how this requirement is checked.
             </p>
           ) : (
-            <ol className="mt-4 space-y-8">{tests.map((t) => <TestCard key={t.id} req={req} test={t} />)}</ol>
+            <>
+              <ol className="mt-4 space-y-8">{tests.map((t) => <TestCard key={t.id} req={req} test={t} />)}</ol>
+              <div className="mt-6 empty:hidden"><ApproveAllTests req={req} /></div>
+            </>
           )}
         </section>
 

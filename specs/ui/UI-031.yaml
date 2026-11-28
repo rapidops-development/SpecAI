@@ -1,0 +1,38 @@
+specai: "0.2"
+id: UI-031
+title: Approve all proposed test definitions
+status: proposed
+statement: >-
+  When the user chooses Approve all after a [[requirement]]'s test definitions, the UI shall approve
+  every one of them that is proposed, in one save.
+acceptance:
+  - The button is shown only while at least two of the requirement's test definitions are proposed, and says how many it approves.
+  - Test definitions in any other status keep their status, and the requirement keeps its own.
+  - After saving, the UI says how many test definitions it approved, or why none were.
+components: [UI]
+related: [UI-008]
+rationale: |
+  A reviewer usually reads every test definition of a requirement before deciding, then approves them
+  together. One button at the end of the list saves choosing Approve on each one in turn. With one
+  proposed test definition, its own Approve button does the same.
+tests:
+  - id: UI-031-T1
+    title: Approving all proposed test definitions
+    status: proposed
+    level: unit
+    given:
+      - A proposed requirement with two proposed test definitions, a draft one and an approved one
+    when: The user chooses Approve all
+    then:
+      - One save sets both proposed test definitions to approved
+      - The draft and approved test definitions, and the requirement, keep their status
+      - The UI says two test definitions were approved
+  - id: UI-031-T2
+    title: Shown only for two or more proposed
+    status: proposed
+    level: unit
+    given:
+      - A requirement with one proposed test definition, then with none
+    when: Its page is shown
+    then:
+      - There is no Approve all button
