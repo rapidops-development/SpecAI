@@ -5,6 +5,7 @@ import { GraphDialog } from '../src/components/graph/GraphDialog.tsx'
 import { GraphPanel } from '../src/components/graph/GraphPanel.tsx'
 import { Layout } from '../src/components/Layout.tsx'
 import { SpecProvider } from '../src/components/SpecContext.tsx'
+import { RequirementPage } from '../src/pages/RequirementPage.tsx'
 import type { IndexedRequirement, SpecIndex } from '../src/types.ts'
 
 // Built by hand: the CLI's index builder reads the schema from disk, which jsdom cannot.
@@ -69,6 +70,18 @@ describe('knowledge graph panel', () => {
     await waitFor(() => expect(point('LOAN-003')).toBeTruthy())
     fireEvent.click(point('LOAN-003'))
     expect(location.pathname).toBe('/r/LOAN-003')
+  })
+
+  it('[UI-026-T4] comes first in the requirement page’s details', () => {
+    render(
+      <SpecProvider index={index}>
+        <RequirementPage id="LOAN-001" />
+      </SpecProvider>,
+    )
+    const details = screen.getByRole('complementary')
+    const headings = within(details).getAllByRole('heading').map((h) => h.textContent)
+    expect(headings[0]).toBe('Knowledge graph')
+    expect(headings.slice(-2)).toEqual(['Linked from', 'File'])
   })
 
   it('says when the page’s requirement is left out', async () => {

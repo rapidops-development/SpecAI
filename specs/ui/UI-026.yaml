@@ -3,7 +3,7 @@ id: UI-026
 title: Knowledge graph on a requirement page
 status: proposed
 statement: >-
-  The UI shall show a small [[knowledge graph]] at the foot of a [[requirement]] page's details,
+  The UI shall show a small [[knowledge graph]] at the top of a [[requirement]] page's details,
   highlighting the requirement and the requirements linked to it, that the user can expand into a
   dialog filling most of the window.
 acceptance:
@@ -11,12 +11,15 @@ acceptance:
   - The dialog opens with the page's requirement selected.
   - The dialog closes with its close button or Escape, leaving the page as it was.
   - On the page of a deprecated or removed requirement, the small graph says it leaves the requirement out.
+  - The small graph comes before the requirement's other details, such as its implementation, coverage and links.
 components: [UI]
 related: [UI-025, UI-029, UI-030]
 rationale: |
   The details beside a requirement list what it refines, what it relates to and what links to it. The
   small graph shows the same relations in place, among the requirements around them, so a reviewer
-  sees where the requirement sits without leaving the page; the dialog gives room to explore.
+  sees where the requirement sits without leaving the page; the dialog gives room to explore. At the
+  top of the details it is in view as soon as the page opens, without scrolling past a long list of
+  links.
 tests:
   - id: UI-026-T1
     title: Small graph follows the page
@@ -46,3 +49,12 @@ tests:
     then:
       - A dialog shows the knowledge graph with that requirement selected
       - After Escape the dialog is gone and the requirement page is still shown
+  - id: UI-026-T4
+    title: Small graph at the top of the details
+    status: proposed
+    level: unit
+    given:
+      - A requirement page
+    when: The page is shown
+    then:
+      - The small graph is the first of the requirement's details, before Linked from and File
