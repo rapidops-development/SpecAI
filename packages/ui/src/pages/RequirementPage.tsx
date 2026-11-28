@@ -14,6 +14,7 @@ import { coverageLabels, implementationLabels } from '../lib/filters.ts'
 import { issueHref } from '../lib/issues.ts'
 import { createSearch } from '../lib/search.ts'
 import { neighbours } from '../lib/sequence.ts'
+import { useShowRetired } from '../components/ShowRetired.tsx'
 import type { IndexedRequirement, TestDefinition } from '../types.ts'
 
 export function RequirementPage({ id, search = '' }: { id: string; search?: string }) {
@@ -146,7 +147,7 @@ export function RequirementPage({ id, search = '' }: { id: string; search?: stri
 export function Stepper({ id, search }: { id: string; search: string }) {
   const { index } = useSpec()
   const runSearch = useMemo(() => createSearch(index), [index])
-  const { previous, next, position, total } = neighbours(index, runSearch, search, id)
+  const { previous, next, position, total } = neighbours(index, runSearch, search, id, useShowRetired())
   const step = 'border-rule bg-surface text-ink inline-flex items-center rounded-md border p-1 hover:border-[var(--accent)]'
   const off = 'border-rule text-muted inline-flex items-center rounded-md border p-1 opacity-40'
   return (

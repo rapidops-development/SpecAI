@@ -113,6 +113,9 @@ link between two of them; related areas sit nearer each other, and within an are
 that link to each other or share rare glossary terms and components. A small graph sits beside each
 requirement; expand it, or choose Knowledge graph in the navigation, to explore the whole graph.
 
+Lists leave out deprecated and removed requirements unless you turn on **Show deprecated and removed**
+in the navigation, or choose their status in the status filter. Their own pages still open.
+
 ## Using SpecAI with AI agents
 
 Agents find the specs through the `AGENTS.md` (or `CLAUDE.md`) of each repo whose behaviour a spec

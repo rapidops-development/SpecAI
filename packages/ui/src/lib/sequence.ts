@@ -1,11 +1,12 @@
 import type { IndexedRequirement, SpecIndex } from '../types.ts'
 import { applyFilters, emptyFilters, groupRequirements, type ListState, parseListState } from './filters.ts'
+import { visible } from './visibility.ts'
 
 type Search = (query: string) => IndexedRequirement[]
 
 /** The requirements a list shows, in the order it shows them, each once even when it is in several groups. */
-export function listOrder(index: SpecIndex, runSearch: Search, state: ListState): IndexedRequirement[] {
-  const matches = applyFilters(runSearch(state.q), state.filters, index)
+export function listOrder(index: SpecIndex, runSearch: Search, state: ListState, showRetired = true): IndexedRequirement[] {
+  const matches = applyFilters(visible(runSearch(state.q), showRetired, state.filters.status), state.filters, index)
   const seen = new Set<string>()
   return groupRequirements(index, matches, state.group)
     .flatMap((g) => g.items)
@@ -22,13 +23,13 @@ export interface Neighbours {
 
 /**
  * The requirements before and after one in the list a URL's search describes. When the requirement
- * is no longer in that list, such as after a status change, its neighbours are the nearest list
- * members around where it sits in the same list without filters.
+ * is no longer in that list, such as after a status change or because it is deprecated and hidden,
+ * its neighbours are the nearest list members around where it sits in the same list without filters.
  */
-// SpecAI: UI-021
-export function neighbours(index: SpecIndex, runSearch: Search, search: string, id: string): Neighbours {
+// SpecAI: UI-021, UI-032
+export function neighbours(index: SpecIndex, runSearch: Search, search: string, id: string, showRetired = true): Neighbours {
   const state = parseListState(search)
-  const list = listOrder(index, runSearch, state)
+  const list = listOrder(index, runSearch, state, showRetired)
   const total = list.length
   const at = list.findIndex((r) => r.id === id)
   if (at !== -1) return { previous: list[at - 1], next: list[at + 1], position: at + 1, total }

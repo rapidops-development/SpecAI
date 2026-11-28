@@ -18,6 +18,8 @@ import {
   serializeListState,
 } from '../lib/filters.ts'
 import { createSearch } from '../lib/search.ts'
+import { visible } from '../lib/visibility.ts'
+import { useShowRetired } from '../components/ShowRetired.tsx'
 import { navigate } from '../router.tsx'
 
 export function ListPage({ search, area }: { search: string; area?: string }) {
@@ -25,8 +27,10 @@ export function ListPage({ search, area }: { search: string; area?: string }) {
   const state = parseListState(search)
   const runSearch = useMemo(() => createSearch(index), [index])
   const scoped = area ? { ...state.filters, area: [area] } : state.filters
+  const showRetired = useShowRetired()
   const found = useMemo(() => runSearch(state.q), [runSearch, state.q])
-  const matches = useMemo(() => applyFilters(found, scoped, index), [found, JSON.stringify(scoped), index])
+  const shown = useMemo(() => visible(found, showRetired, scoped.status), [found, showRetired, scoped.status.join()])
+  const matches = useMemo(() => applyFilters(shown, scoped, index), [shown, JSON.stringify(scoped), index])
   const groups = groupRequirements(index, matches, state.group)
   const update = (next: Partial<ListState>, replace = false) =>
     navigate(location.pathname + serializeListState({ ...state, ...next }), { replace })
@@ -70,7 +74,7 @@ export function ListPage({ search, area }: { search: string; area?: string }) {
             key={facet}
             facet={facet}
             selected={state.filters[facet]}
-            options={facetOptions(index, found, scoped, facet)}
+            options={facetOptions(index, facet === 'status' ? found : shown, scoped, facet)}
             onChange={(values) => update({ filters: { ...state.filters, [facet]: values } })}
           />
         ))}
