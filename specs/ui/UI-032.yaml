@@ -1,0 +1,50 @@
+specai: "0.2"
+id: UI-032
+title: Hide deprecated and removed requirements
+status: proposed
+statement: >-
+  While the user has not chosen to show them, the UI shall leave deprecated and removed
+  [[requirement|requirements]] out of its lists of requirements.
+acceptance:
+  - A switch in the navigation shows and hides them, and says how many there are. The choice is remembered in this browser.
+  - The lists are the list of all requirements, each area's list, search results and the previous and next links; the navigation's counts count only the requirements those lists show.
+  - Choosing deprecated or removed in the status filter lists requirements with that status, and the status filter counts them.
+  - A deprecated or removed requirement's own page still opens, with previous and next links to the nearest requirements in the list.
+components: [UI]
+related: [UI-002, UI-021, UI-025]
+rationale: |
+  A spec tree keeps deprecated and removed requirements on file, so their IDs are never reused and
+  links to them still resolve. A tree that has been reviewed can hold as many of them as live ones,
+  which crowds the lists a reviewer works through. Most of the time only the live ones matter.
+tests:
+  - id: UI-032-T1
+    title: Hidden until shown
+    status: proposed
+    level: unit
+    given:
+      - A proposed, a deprecated and a removed requirement
+    when: The list is shown, then the user turns on the switch
+    then:
+      - At first only the proposed requirement is listed and counted
+      - After the switch, all three are listed and counted
+      - The choice is still on after the page is reloaded
+  - id: UI-032-T2
+    title: Choosing deprecated in the status filter
+    status: proposed
+    level: unit
+    given:
+      - A proposed and a deprecated requirement, with the switch off
+    when: The user chooses deprecated in the status filter
+    then:
+      - The status filter counts one deprecated requirement
+      - The deprecated requirement is listed
+  - id: UI-032-T3
+    title: Stepping past hidden requirements
+    status: proposed
+    level: unit
+    given:
+      - Three requirements in a row, the middle one deprecated, with the switch off
+    when: The first requirement's page is shown, then the deprecated one's
+    then:
+      - The first requirement's next link goes to the third
+      - The deprecated requirement's page has previous and next links to the first and the third
